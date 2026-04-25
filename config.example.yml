@@ -1,0 +1,51 @@
+# Security Scan at Scale — Example Configuration
+# Copy this file to config.yml and fill in your values.
+
+# Maximum number of (repo, model) scans to run concurrently.
+concurrency: 6
+
+# Directory where repos are cloned for scanning.
+workspaceDir: ./workspaces
+
+# Directory where per-scan reports and the summary are written.
+resultsDir: ./results
+
+# Copilot model identifiers to scan with.
+models:
+  - gpt-4.1
+  # - claude-sonnet-4-5
+
+# GitHub repositories to scan.
+repos:
+  - url: https://github.com/your-org/your-repo-1
+    # ref: main   # optional branch/tag/SHA; defaults to default branch
+  - url: https://github.com/your-org/your-repo-2
+
+# APM pack to install into each cloned repo before scanning.
+# Must be a valid pack identifier understood by `apm install`.
+apmPack: ricardocovo/agent-primitives
+
+# Exactly 3 security-scan prompts to execute per (repo, model) pair.
+# Each runs in a fresh Copilot SDK session.
+commands:
+  - name: "Dependency Audit"
+    prompt: |
+      Analyze this repository's dependency manifest files (package.json, requirements.txt, go.mod, pom.xml, etc.)
+      for known vulnerabilities, outdated packages, and suspicious dependencies.
+      Provide a prioritized list of findings with CVE IDs where applicable.
+
+  - name: "Secret Scan"
+    prompt: |
+      Scan this repository for accidentally committed secrets, credentials, API keys, tokens, and
+      passwords. Check all file types including configuration files, test fixtures, and history.
+      Report each finding with the file path and a severity rating.
+
+  - name: "OWASP Top 10"
+    prompt: |
+      Review this codebase for the OWASP Top 10 security vulnerabilities (injection, broken auth,
+      sensitive data exposure, XXE, broken access control, misconfiguration, XSS, insecure
+      deserialization, using components with known vulnerabilities, insufficient logging).
+      Summarize findings per category with affected files and recommended remediations.
+
+# Maximum time (in milliseconds) to wait for a single Copilot session before treating it as failed.
+sessionTimeoutMs: 600000

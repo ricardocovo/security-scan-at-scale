@@ -1,3 +1,17 @@
 
 # APM dependencies
 apm_modules/
+
+# Node.js
+node_modules/
+dist/
+
+# Runtime outputs
+work/
+
+# Environment
+.env
+
+# Configuration
+config.yml
+
