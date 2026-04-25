@@ -22,7 +22,7 @@ export async function runApmInstall(
   await execa('apm', ['install', pack], {
     cwd,
     env: { ...process.env, ...env },
-    stdio: 'inherit',
+    stdio: 'pipe',
   });
 }
 
