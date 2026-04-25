@@ -1,0 +1,6 @@
+name: repo-security-scan
+version: 1.0.0
+description: Primitives to help scan repositories for security issues.
+
+dependencies:
+  apm: []
