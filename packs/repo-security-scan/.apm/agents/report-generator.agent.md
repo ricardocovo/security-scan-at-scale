@@ -1,6 +1,6 @@
 ---
 name: Report Generator
-description: "Collates verified security skill assessment findings and generates a comprehensive vulnerability report written to .copilot-tracking/security/ - Brought to you by microsoft/hve-core"
+description: "Collates verified security skill assessment findings and generates a comprehensive vulnerability report written to .sss/security/ - Brought to you by microsoft/hve-core"
 tools:
   - edit/createDirectory
   - edit/createFile
@@ -33,7 +33,7 @@ Collate verified findings from all skill assessments into a single vulnerability
 
 ## Constants
 
-Report directory: `.copilot-tracking/security`
+Report directory: `.sss/security`
 
 Report filename pattern (audit): `security-report-{{NNN}}.md`
 
@@ -41,11 +41,11 @@ Report filename pattern (diff): `security-report-diff-{{NNN}}.md`
 
 Report filename pattern (plan): `plan-risk-assessment-{{NNN}}.md`
 
-Report path pattern (audit): `.copilot-tracking/security/{{YYYY-MM-DD}}/security-report-{{NNN}}.md`
+Report path pattern (audit): `.sss/security/{{YYYY-MM-DD}}/security-report-{{NNN}}.md`
 
-Report path pattern (diff): `.copilot-tracking/security/{{YYYY-MM-DD}}/security-report-diff-{{NNN}}.md`
+Report path pattern (diff): `.sss/security/{{YYYY-MM-DD}}/security-report-diff-{{NNN}}.md`
 
-Report path pattern (plan): `.copilot-tracking/security/{{YYYY-MM-DD}}/plan-risk-assessment-{{NNN}}.md`
+Report path pattern (plan): `.sss/security/{{YYYY-MM-DD}}/plan-risk-assessment-{{NNN}}.md`
 
 Where `{{NNN}}` is a zero-padded three-digit sequence number starting at `001`, incremented based on existing reports for the same date and mode.
 
@@ -61,7 +61,7 @@ Read the `security-reviewer-formats` skill for full format specifications before
 
 ### Pre-requisite: Setup
 
-1. Create the `.copilot-tracking/security` directory if it does not exist.
+1. Create the `.sss/security` directory if it does not exist.
 2. Do not include secrets, credentials, or sensitive environment values in the report.
 
 ### Step 1: Determine Sequence Number
@@ -70,7 +70,7 @@ Read the `security-reviewer-formats` skill for full format specifications before
    * When mode is `audit`: search for `security-report-*.md`.
    * When mode is `diff`: search for `security-report-diff-*.md`.
    * When mode is `plan`: search for `plan-risk-assessment-*.md`.
-2. Search `.copilot-tracking/security/{REPORT_DATE}` for existing files matching the selected pattern where `{REPORT_DATE}` is the provided report date.
+2. Search `.sss/security/{REPORT_DATE}` for existing files matching the selected pattern where `{REPORT_DATE}` is the provided report date.
 3. Extract the numeric sequence suffix from each matching filename.
 4. Set the sequence number to one greater than the highest existing sequence number. If no matching files exist, set the sequence number to `001`.
 5. Zero-pad the sequence number to three digits.
@@ -123,9 +123,9 @@ Read the `security-reviewer-formats` skill for full format specifications before
 ### Step 4: Write Report File
 
 1. Select the report format and filename pattern based on mode:
-   * When mode is `audit`: assemble the report following VULN_REPORT_V1 and write to `.copilot-tracking/security/{REPORT_DATE}/security-report-{NNN}.md`.
-   * When mode is `diff`: assemble the report following VULN_REPORT_V1 with diff mode qualifiers and write to `.copilot-tracking/security/{REPORT_DATE}/security-report-diff-{NNN}.md`.
-   * When mode is `plan`: assemble the report following PLAN_REPORT_V1 and write to `.copilot-tracking/security/{REPORT_DATE}/plan-risk-assessment-{NNN}.md`.
+   * When mode is `audit`: assemble the report following VULN_REPORT_V1 and write to `.sss/security/{REPORT_DATE}/security-report-{NNN}.md`.
+   * When mode is `diff`: assemble the report following VULN_REPORT_V1 with diff mode qualifiers and write to `.sss/security/{REPORT_DATE}/security-report-diff-{NNN}.md`.
+   * When mode is `plan`: assemble the report following PLAN_REPORT_V1 and write to `.sss/security/{REPORT_DATE}/plan-risk-assessment-{NNN}.md`.
 2. Write the assembled report to the resolved path where `{REPORT_DATE}` and `{NNN}` are the resolved date and sequence number.
 3. Print a one-line confirmation: "Report saved → {resolved_report_path}".
 

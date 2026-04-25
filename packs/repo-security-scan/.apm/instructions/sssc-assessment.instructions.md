@@ -1,6 +1,6 @@
 ---
 description: "Phase 2 supply chain assessment protocol with the 27 combined capabilities inventory for SSSC Planner."
-applyTo: '**/.copilot-tracking/sssc-plans/**'
+applyTo: '**/.sss/sssc-plans/**'
 ---
 
 # SSSC Phase 2 — Supply Chain Assessment
@@ -68,7 +68,7 @@ Ask the user to confirm or correct assessment findings in batches of 5-7 capabil
 
 ## Output
 
-Write the assessment to `.copilot-tracking/sssc-plans/{project-slug}/supply-chain-assessment.md`.
+Write the assessment to `.sss/sssc-plans/{project-slug}/supply-chain-assessment.md`.
 
 Structure the output as:
 

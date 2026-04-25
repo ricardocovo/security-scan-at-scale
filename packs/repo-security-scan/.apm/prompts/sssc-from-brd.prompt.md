@@ -17,15 +17,15 @@ Activate the SSSC Planner in **from-brd mode** to bootstrap a supply chain secur
 
 Scan these directories as the primary discovery path:
 
-* `.copilot-tracking/brd-sessions/` for business requirements documents
+* `.sss/brd-sessions/` for business requirements documents
 
-If the primary path yields no matches, perform a secondary scan of `.copilot-tracking/` for files whose names match `brd-*.md`, `*-brd.md`, or `business-requirements*.md`. Exclude generic matches like `requirements.txt` or files outside business-scoping contexts.
+If the primary path yields no matches, perform a secondary scan of `.sss/` for files whose names match `brd-*.md`, `*-brd.md`, or `business-requirements*.md`. Exclude generic matches like `requirements.txt` or files outside business-scoping contexts.
 
 Present all discovery results to the user for confirmation before proceeding.
 
 ### Initialization
 
-* Create the project directory at `.copilot-tracking/sssc-plans/{project-slug}/` and write `state.json` with `entryMode: "from-brd"`, `currentPhase: 1`, and remaining fields populated from BRD context.
+* Create the project directory at `.sss/sssc-plans/{project-slug}/` and write `state.json` with `entryMode: "from-brd"`, `currentPhase: 1`, and remaining fields populated from BRD context.
 * Extract technology stack, compliance requirements, integration points, and deployment targets from the BRD.
 * Pre-populate Phase 1 scoping fields with extracted information and ask 3-5 confirmation questions to verify accuracy and fill gaps.
 

@@ -1,6 +1,6 @@
 ---
 description: "Security Planner identity, six-phase orchestration, state management, and session recovery protocols - Brought to you by microsoft/hve-core"
-applyTo: '**/.copilot-tracking/security-plans/**'
+applyTo: '**/.sss/security-plans/**'
 ---
 
 # Security Planner Identity
@@ -102,11 +102,11 @@ Fresh assessment. Initialize blank `state.json` with `entryMode: "capture"`. Con
 
 ### `from-prd`
 
-PRD/BRD-seeded assessment. Scan `.copilot-tracking/prd-sessions/` and `.copilot-tracking/brd-sessions/` for planning artifacts. Secondary scan for `prd-*.md`, `*-prd.md`, `brd-*.md`, `*-brd.md`, and `product-definition*.md`. Extract project scope, technology stack, deployment targets, data classification levels, compliance requirements, and stakeholder roles. Pre-populate Phase 1 state fields. Add processed file paths to `referencesProcessed`. Set `entryMode` to `"from-prd"`. Present extracted information to the user for confirmation or refinement before advancing.
+PRD/BRD-seeded assessment. Scan `.sss/prd-sessions/` and `.sss/brd-sessions/` for planning artifacts. Secondary scan for `prd-*.md`, `*-prd.md`, `brd-*.md`, `*-brd.md`, and `product-definition*.md`. Extract project scope, technology stack, deployment targets, data classification levels, compliance requirements, and stakeholder roles. Pre-populate Phase 1 state fields. Add processed file paths to `referencesProcessed`. Set `entryMode` to `"from-prd"`. Present extracted information to the user for confirmation or refinement before advancing.
 
 ## State Management
 
-State persists across sessions in a JSON file at `.copilot-tracking/security-plans/{project-slug}/state.json`.
+State persists across sessions in a JSON file at `.sss/security-plans/{project-slug}/state.json`.
 
 ### State Schema
 

@@ -1,6 +1,6 @@
 ---
 description: "Phase 6 backlog handoff protocol with Scorecard projections and dual-format output for SSSC Planner."
-applyTo: '**/.copilot-tracking/sssc-plans/**'
+applyTo: '**/.sss/sssc-plans/**'
 ---
 
 # SSSC Phase 6 — Review and Handoff
@@ -44,7 +44,7 @@ Assess which Badge tier the repository would qualify for after completing all wo
 
 ## ADO Handoff
 
-Write ADO-formatted work items to `.copilot-tracking/workitems/backlog/{project-slug}-sssc/work-items.md`.
+Write ADO-formatted work items to `.sss/workitems/backlog/{project-slug}-sssc/work-items.md`.
 
 Apply the ADO work item template from `sssc-backlog.instructions.md` with:
 
@@ -58,7 +58,7 @@ Set `state.json` field `handoffGenerated.ado` to `true` after writing.
 
 ## GitHub Handoff
 
-Write GitHub-formatted issues to `.copilot-tracking/github-issues/discovery/{project-slug}-sssc/issues-plan.md`.
+Write GitHub-formatted issues to `.sss/github-issues/discovery/{project-slug}-sssc/issues-plan.md`.
 
 Apply the GitHub issue template from `sssc-backlog.instructions.md` with:
 

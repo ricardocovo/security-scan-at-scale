@@ -1,6 +1,6 @@
 ---
 description: "Phase 5 dual-format work item generation with templates and priority derivation for SSSC Planner."
-applyTo: '**/.copilot-tracking/sssc-plans/**'
+applyTo: '**/.sss/sssc-plans/**'
 ---
 
 # SSSC Phase 5 — Backlog Generation
@@ -133,7 +133,7 @@ Markdown template for GitHub issue body:
 
 Strip internal tracking paths from work item output before handoff:
 
-1. Replace `.copilot-tracking/` paths with descriptive text (e.g., "SSSC plan artifacts").
+1. Replace `.sss/` paths with descriptive text (e.g., "SSSC plan artifacts").
 2. Replace full file system paths with relative references.
 3. Remove state JSON content or references.
 4. Preserve standards references (Scorecard check names, SLSA levels, Badge criteria) in all cases.
@@ -150,7 +150,7 @@ Ask the user which tier they prefer. Default to partial autonomy on first use.
 
 ## Output
 
-Write the neutral intermediate backlog to `.copilot-tracking/sssc-plans/{project-slug}/sssc-backlog.md`.
+Write the neutral intermediate backlog to `.sss/sssc-plans/{project-slug}/sssc-backlog.md`.
 
 Update `state.json`:
 * Set `phases.5-backlog.status` to `✅`

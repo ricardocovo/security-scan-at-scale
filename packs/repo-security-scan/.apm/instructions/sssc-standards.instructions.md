@@ -1,6 +1,6 @@
 ---
 description: "Phase 3 OpenSSF Scorecard, SLSA, Best Practices Badge, Sigstore, and SBOM standards mapping for SSSC Planner."
-applyTo: '**/.copilot-tracking/sssc-plans/**'
+applyTo: '**/.sss/sssc-plans/**'
 ---
 
 # SSSC Phase 3: Standards Mapping
@@ -120,7 +120,7 @@ Use `runSubagent` or `task` with the Researcher Subagent:
 Agent: Researcher Subagent
 Topic: {specific supply chain standard area to research}
 Context: Repository "{name}" with supply chain maturity "{current-level}" targeting "{target-level}"
-Output: .copilot-tracking/research/subagents/{{YYYY-MM-DD}}/{repo-name}-{standard}.md
+Output: .sss/research/subagents/{{YYYY-MM-DD}}/{repo-name}-{standard}.md
 ```
 
 The Researcher Subagent returns: subagent research document path, research status, important discovered details, recommended next research not yet completed, and any clarifying questions.
@@ -142,7 +142,7 @@ Subagents can run in parallel when researching independent standard domains.
 
 ## Output
 
-Write the mapping to `.copilot-tracking/sssc-plans/{project-slug}/standards-mapping.md`.
+Write the mapping to `.sss/sssc-plans/{project-slug}/standards-mapping.md`.
 
 Structure the output as:
 

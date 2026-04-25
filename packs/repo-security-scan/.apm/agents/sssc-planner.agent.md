@@ -11,7 +11,7 @@ handoffs:
   - label: "Compact"
     agent: SSSC Planner
     send: true
-    prompt: "/compact Make sure summarization includes that all state is managed through .copilot-tracking/sssc-plans/ folder files, and be sure to include the current phase, entry mode, and project slug"
+    prompt: "/compact Make sure summarization includes that all state is managed through .sss/sssc-plans/ folder files, and be sure to include the current phase, entry mode, and project slug"
   - label: "Security Planner"
     agent: Security Planner
     prompt: /security-capture
@@ -55,7 +55,7 @@ Key scoping questions cover:
 * Compliance targets (Scorecard score threshold, SLSA level, Best Practices Badge tier)
 * Repository hosting (GitHub, Azure DevOps, GitLab)
 
-After scoping, check whether a Security Planner assessment already exists. If `.copilot-tracking/security-plans/` contains artifacts for this project, read relevant context and store the path in `securityPlannerLink`. Similarly check for RAI Planner artifacts in `.copilot-tracking/rai-plans/`.
+After scoping, check whether a Security Planner assessment already exists. If `.sss/security-plans/` contains artifacts for this project, read relevant context and store the path in `securityPlannerLink`. Similarly check for RAI Planner artifacts in `.sss/rai-plans/`.
 
 ### Phase 2: Supply Chain Assessment
 
@@ -84,9 +84,9 @@ Four entry modes determine how Phase 1 begins. All converge at Phase 2 once scop
 | Mode               | Trigger              | Input                               | Behavior                                                  |
 |--------------------|----------------------|-------------------------------------|-----------------------------------------------------------|
 | capture            | Fresh start          | Conversation                        | Guided Q&A to build project context from scratch          |
-| from-prd           | PRD exists           | `.copilot-tracking/prd-sessions/`   | Extract supply chain requirements from PRD                |
-| from-brd           | BRD exists           | `.copilot-tracking/brd-sessions/`   | Extract supply chain requirements from BRD                |
-| from-security-plan | Security plan exists | `.copilot-tracking/security-plans/` | Extend Security Planner output with supply chain coverage |
+| from-prd           | PRD exists           | `.sss/prd-sessions/`   | Extract supply chain requirements from PRD                |
+| from-brd           | BRD exists           | `.sss/brd-sessions/`   | Extract supply chain requirements from BRD                |
+| from-security-plan | Security plan exists | `.sss/security-plans/` | Extend Security Planner output with supply chain coverage |
 
 ### Capture Mode
 
@@ -94,19 +94,19 @@ Activated when the user invokes `sssc-capture.prompt.md`. Starts with a blank Ph
 
 ### From-PRD Mode
 
-Activated when the user invokes `sssc-from-prd.prompt.md`. Scans `.copilot-tracking/prd-sessions/` for PRD artifacts, extracts technology stack, CI/CD platform, and deployment targets, and pre-populates Phase 1 state. The user confirms or refines the extracted information before advancing.
+Activated when the user invokes `sssc-from-prd.prompt.md`. Scans `.sss/prd-sessions/` for PRD artifacts, extracts technology stack, CI/CD platform, and deployment targets, and pre-populates Phase 1 state. The user confirms or refines the extracted information before advancing.
 
 ### From-BRD Mode
 
-Activated when the user invokes `sssc-from-brd.prompt.md`. Scans `.copilot-tracking/brd-sessions/` for BRD artifacts, extracts infrastructure and deployment requirements, and pre-populates Phase 1 state. The user confirms or refines before advancing.
+Activated when the user invokes `sssc-from-brd.prompt.md`. Scans `.sss/brd-sessions/` for BRD artifacts, extracts infrastructure and deployment requirements, and pre-populates Phase 1 state. The user confirms or refines before advancing.
 
 ### From-Security-Plan Mode
 
-Activated when the user invokes `sssc-from-security-plan.prompt.md`. Reads the existing security plan from `.copilot-tracking/security-plans/` to extract technology stack, deployment model, and security controls already identified. Uses this as a foundation to scope the supply chain assessment, avoiding redundant questions.
+Activated when the user invokes `sssc-from-security-plan.prompt.md`. Reads the existing security plan from `.sss/security-plans/` to extract technology stack, deployment model, and security controls already identified. Uses this as a foundation to scope the supply chain assessment, avoiding redundant questions.
 
 ## State Management Protocol
 
-State files live under `.copilot-tracking/sssc-plans/{project-slug}/`.
+State files live under `.sss/sssc-plans/{project-slug}/`.
 
 State JSON schema for `state.json`:
 
@@ -161,7 +161,7 @@ Seven rules govern conversational flow across all phases:
 
 ## Instruction File References
 
-Six instruction files provide detailed guidance for each domain. These files are auto-applied via their `applyTo` patterns when working within `.copilot-tracking/sssc-plans/`.
+Six instruction files provide detailed guidance for each domain. These files are auto-applied via their `applyTo` patterns when working within `.sss/sssc-plans/`.
 
 * `.github/instructions/security/sssc-identity.instructions.md`: Agent identity, phase architecture, state management, session recovery, and question cadence.
 * `.github/instructions/security/sssc-assessment.instructions.md`: Phase 2 supply chain assessment protocol with the 27 combined capabilities inventory.
@@ -174,7 +174,7 @@ Read and follow these instruction files when entering their respective phases.
 
 ## Subagent Delegation
 
-This agent delegates supply chain standard specification lookups and framework research to `Researcher Subagent`. Direct execution applies only to conversational assessment, artifact generation under `.copilot-tracking/sssc-plans/`, state management, and synthesizing subagent outputs.
+This agent delegates supply chain standard specification lookups and framework research to `Researcher Subagent`. Direct execution applies only to conversational assessment, artifact generation under `.sss/sssc-plans/`, state management, and synthesizing subagent outputs.
 
 Run `Researcher Subagent` using `runSubagent` or `task`, providing these inputs:
 
@@ -238,7 +238,7 @@ Reference `.github/instructions/security/sssc-handoff.instructions.md` for full 
 
 ## Operational Constraints
 
-* Create all files only under `.copilot-tracking/sssc-plans/{project-slug}/`.
+* Create all files only under `.sss/sssc-plans/{project-slug}/`.
 * Never modify application source code.
 * Delegate Microsoft Well-Architected Framework (WAF) and Cloud Adoption Framework (CAF) lookups to Researcher Subagent rather than embedding those standards.
 * Reusable workflow references point to `microsoft/hve-core` and `microsoft/physical-ai-toolchain`. Verify workflow availability before recommending adoption.

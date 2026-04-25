@@ -2,7 +2,7 @@
 description: >-
   Identity and orchestration instructions for the SSSC Planner agent. Contains
   six-phase workflow, state.json schema, session recovery, and question cadence.
-applyTo: '**/.copilot-tracking/sssc-plans/**'
+applyTo: '**/.sss/sssc-plans/**'
 ---
 
 # SSSC Planner Identity
@@ -80,11 +80,11 @@ Fresh assessment. Initialize blank `state.json` with `entryMode: "capture"`. Con
 
 ### `from-prd`
 
-PRD-seeded assessment. Scan `.copilot-tracking/` for PRD artifacts. Extract project scope, technology stack, package managers, deployment targets, and compliance targets. Pre-populate Phase 1 state fields in `context`. Add processed file paths to `referencesProcessed`. Present extracted information to the user for confirmation or refinement before advancing.
+PRD-seeded assessment. Scan `.sss/` for PRD artifacts. Extract project scope, technology stack, package managers, deployment targets, and compliance targets. Pre-populate Phase 1 state fields in `context`. Add processed file paths to `referencesProcessed`. Present extracted information to the user for confirmation or refinement before advancing.
 
 ### `from-brd`
 
-BRD-seeded assessment. Scan `.copilot-tracking/` for BRD artifacts. Extract business requirements that imply supply chain constraints: regulatory compliance targets, vendor and dependency policies, deployment environment requirements, and packaging or distribution standards. Pre-populate Phase 1 state fields in `context`. Add processed file paths to `referencesProcessed`. Present extracted information to the user for confirmation or refinement before advancing.
+BRD-seeded assessment. Scan `.sss/` for BRD artifacts. Extract business requirements that imply supply chain constraints: regulatory compliance targets, vendor and dependency policies, deployment environment requirements, and packaging or distribution standards. Pre-populate Phase 1 state fields in `context`. Add processed file paths to `referencesProcessed`. Present extracted information to the user for confirmation or refinement before advancing.
 
 ### `from-security-plan`
 
@@ -92,7 +92,7 @@ Security plan-seeded assessment. Read `state.json` and artifacts from the path s
 
 ## State Management
 
-State persists across sessions in a JSON file at `.copilot-tracking/sssc-plans/{project-slug}/state.json`.
+State persists across sessions in a JSON file at `.sss/sssc-plans/{project-slug}/state.json`.
 
 ### State Schema
 

@@ -1,6 +1,6 @@
 ---
 description: "Phase 4 gap comparison, adoption categorization, and effort sizing for SSSC Planner."
-applyTo: '**/.copilot-tracking/sssc-plans/**'
+applyTo: '**/.sss/sssc-plans/**'
 ---
 
 # SSSC Phase 4 — Gap Analysis
@@ -107,7 +107,7 @@ Within the gap table, sort entries by:
 
 ## Output
 
-Write the analysis to `.copilot-tracking/sssc-plans/{project-slug}/gap-analysis.md`.
+Write the analysis to `.sss/sssc-plans/{project-slug}/gap-analysis.md`.
 
 Structure the output as:
 

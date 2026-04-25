@@ -1,6 +1,6 @@
 ---
 description: "Operational bucket definitions with component classification guidance and cross-cutting security concerns - Brought to you by microsoft/hve-core"
-applyTo: '**/.copilot-tracking/security-plans/**'
+applyTo: '**/.sss/security-plans/**'
 ---
 
 # Operational Security Buckets

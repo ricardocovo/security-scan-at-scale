@@ -17,18 +17,18 @@ Activate the Security Planner in **from-prd mode** to bootstrap a security plan 
 
 Scan these directories as the primary discovery path:
 
-* `.copilot-tracking/prd-sessions/` for product requirements documents
-* `.copilot-tracking/brd-sessions/` for business requirements documents
+* `.sss/prd-sessions/` for product requirements documents
+* `.sss/brd-sessions/` for business requirements documents
 
-If the primary paths yield no matches, perform a secondary scan of `.copilot-tracking/` for files whose names match `prd-*.md`, `*-prd.md`, `brd-*.md`, `*-brd.md`, or `product-definition*.md`. Exclude generic matches like `requirements.txt` or files outside product-scoping contexts.
+If the primary paths yield no matches, perform a secondary scan of `.sss/` for files whose names match `prd-*.md`, `*-prd.md`, `brd-*.md`, `*-brd.md`, or `product-definition*.md`. Exclude generic matches like `requirements.txt` or files outside product-scoping contexts.
 
 Present all discovery results to the user for confirmation before proceeding. Example results:
 
 ```text
 Found 3 candidates:
-  ✅ .copilot-tracking/prd-sessions/contoso-api/prd-final.md
-  ✅ .copilot-tracking/brd-sessions/contoso-api/brd-v2.md
-  ❌ .copilot-tracking/plans/npm-requirements.md (false positive, discard)
+  ✅ .sss/prd-sessions/contoso-api/prd-final.md
+  ✅ .sss/brd-sessions/contoso-api/brd-v2.md
+  ❌ .sss/plans/npm-requirements.md (false positive, discard)
 ```
 
 If zero artifacts are found after both scans: inform the user that no PRD/BRD artifacts were discovered, offer to switch to capture mode using the `/security-capture` prompt, or ask the user to provide a file path manually. Do not proceed to scope extraction without at least one confirmed artifact.
@@ -48,7 +48,7 @@ If the project name cannot be derived from the discovered artifacts and `${input
 
 ### State Initialization
 
-Create the project directory at `.copilot-tracking/security-plans/{project-slug}/` and initialize `state.json` with:
+Create the project directory at `.sss/security-plans/{project-slug}/` and initialize `state.json` with:
 
 * `entryMode` set to `"from-prd"`
 * `currentPhase` set to `1`

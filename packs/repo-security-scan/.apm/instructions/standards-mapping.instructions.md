@@ -1,6 +1,6 @@
 ---
 description: "Embedded OWASP and NIST security standards with researcher subagent delegation for CIS, WAF, CAF, and other runtime lookups - Brought to you by microsoft/hve-core"
-applyTo: '**/.copilot-tracking/security-plans/**'
+applyTo: '**/.sss/security-plans/**'
 ---
 
 # Standards Mapping
@@ -155,7 +155,7 @@ Use `runSubagent` with the Researcher Subagent:
 Agent: Researcher Subagent
 Topic: {specific framework area to research}
 Context: Component "{name}" in bucket "{bucket}" using {technology stack}
-Output: .copilot-tracking/research/subagents/{{YYYY-MM-DD}}/{component-name}-{framework}.md
+Output: .sss/research/subagents/{{YYYY-MM-DD}}/{component-name}-{framework}.md
 ```
 
 Response format: Return findings as a markdown document with Standards Coverage, Findings, and Recommendations sections.
@@ -181,7 +181,7 @@ Use these templates when delegating to the Researcher Subagent:
 * HIPAA: "Identify HIPAA Security Rule requirements for {component} handling {PHI context}."
 * FedRAMP: "Map {component} to FedRAMP {impact level} baseline controls."
 
-Subagent research outputs follow the repository-wide `.copilot-tracking/research/subagents/` convention and are not subject to the parent agent's own file creation constraints.
+Subagent research outputs follow the repository-wide `.sss/research/subagents/` convention and are not subject to the parent agent's own file creation constraints.
 
 Collect findings from the output path and incorporate them into the component's standards mapping under the WAF/CAF Findings section.
 

@@ -1,6 +1,6 @@
 ---
 description: "Dual-format backlog handoff for ADO and GitHub with content sanitization, autonomy tiers, and work item templates - Brought to you by microsoft/hve-core"
-applyTo: '**/.copilot-tracking/security-plans/**'
+applyTo: '**/.sss/security-plans/**'
 ---
 
 # Backlog Handoff
@@ -109,15 +109,15 @@ Strip all internal tracking paths from work item output before handoff to extern
 
 Sanitization rules:
 
-1. Replace `.copilot-tracking/` paths with descriptive text (for example, "security plan artifacts").
+1. Replace `.sss/` paths with descriptive text (for example, "security plan artifacts").
 2. Replace full file system paths with relative references.
 3. Remove state JSON content or references.
 4. Remove internal tracking IDs that are not work item IDs.
 5. Preserve standards references (OWASP, NIST, CIS IDs) in all cases.
 
-After generating each work item, scan the output for `.copilot-tracking/`. If found, strip the path and log the sanitization action.
+After generating each work item, scan the output for `.sss/`. If found, strip the path and log the sanitization action.
 
-Debug mode: Retain full paths in `.copilot-tracking/security-plans/{slug}/debug/` output only. Paths never appear in external-facing work items.
+Debug mode: Retain full paths in `.sss/security-plans/{slug}/debug/` output only. Paths never appear in external-facing work items.
 
 ## Three-Tier Autonomy Model
 
@@ -125,7 +125,7 @@ Three tiers control how work items reach the target backlog system.
 
 * Full autonomy: Create work items directly via MCP tools. The user pre-approves batch creation, and all items are created in a single operation.
 * Partial autonomy (default): Present each batch of 5 to 10 items for user review before creation. The user can modify, skip, or approve individual items.
-* Manual: Produce an output file at `.copilot-tracking/security-plans/{slug}/backlog-handoff.md` without invoking MCP tools. The user imports items into the backlog system independently.
+* Manual: Produce an output file at `.sss/security-plans/{slug}/backlog-handoff.md` without invoking MCP tools. The user imports items into the backlog system independently.
 
 Ask the user in Phase 5 which tier they prefer. Default to partial autonomy on first use. Store the selected preference in the session state JSON under `userPreferences.autonomyTier`.
 

@@ -86,13 +86,13 @@ One verdict block per finding. Required fields per block:
 
 ## Orchestrator Constants
 
-Report directory: `.copilot-tracking/security`
+Report directory: `.sss/security`
 
-Report path pattern (audit): `.copilot-tracking/security/{{YYYY-MM-DD}}/security-report-{{NNN}}.md`
+Report path pattern (audit): `.sss/security/{{YYYY-MM-DD}}/security-report-{{NNN}}.md`
 
-Report path pattern (diff): `.copilot-tracking/security/{{YYYY-MM-DD}}/security-report-diff-{{NNN}}.md`
+Report path pattern (diff): `.sss/security/{{YYYY-MM-DD}}/security-report-diff-{{NNN}}.md`
 
-Report path pattern (plan): `.copilot-tracking/security/{{YYYY-MM-DD}}/plan-risk-assessment-{{NNN}}.md`
+Report path pattern (plan): `.sss/security/{{YYYY-MM-DD}}/plan-risk-assessment-{{NNN}}.md`
 
 Sequence number resolution: Determine `{{NNN}}` by listing existing reports in the date directory, extracting the highest sequence number, incrementing by one, and zero-padding to three digits. Start at `001` when no reports exist.
 
@@ -179,7 +179,7 @@ Detect the scanning mode, profile the codebase or plan document, assess applicab
   3. Filter the changed files list to exclude non-assessable files: files under `.github/skills/`, markdown files (`*.md`), YAML files (`*.yml`, `*.yaml`), JSON files (`*.json`), and image files (`*.png`, `*.jpg`, `*.jpeg`, `*.gif`, `*.svg`, `*.ico`). If the filtered list is empty, display a scan status update: phase "Complete", message "No assessable code files detected in the diff. Changed files are limited to documentation and configuration." Stop the scan.
   4. Hold the filtered changed files list in context as newline-delimited file paths for interpolation into subagent prompts. Retain the original unfiltered list separately for the Report Generator's changed files appendix.
 * When mode is `plan`:
-  1. Resolve the plan document: use the explicit plan input path when provided, otherwise infer from attached files or conversation context. As a final fallback, search `.copilot-tracking/plans/` for the plan file in the lexicographically last date-named directory (directories follow `YYYY-MM-DD` naming).
+  1. Resolve the plan document: use the explicit plan input path when provided, otherwise infer from attached files or conversation context. As a final fallback, search `.sss/plans/` for the plan file in the lexicographically last date-named directory (directories follow `YYYY-MM-DD` naming).
   2. Read the resolved plan document content.
   3. If no plan document can be resolved, ask the user to provide a plan document path and wait for a response before proceeding.
 

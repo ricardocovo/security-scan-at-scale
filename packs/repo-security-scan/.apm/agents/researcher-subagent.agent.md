@@ -11,7 +11,7 @@ Research specific questions and topics using search tools, read tools, fetch web
 ## Inputs
 
 * Research topics and/or questions to investigate.
-* Subagent research document file path `.copilot-tracking/research/subagents/{{YYYY-MM-DD}}/{{topic}}.md` otherwise determined from topics.
+* Subagent research document file path `.sss/research/subagents/{{YYYY-MM-DD}}/{{topic}}.md` otherwise determined from topics.
 
 ## Subagent Research Document
 
@@ -48,11 +48,11 @@ Read the subagent research document, cleanup and finalize the subagent research 
 
 ## File Reference Formatting
 
-Files under `.copilot-tracking/` are consumed by AI agents, not humans clicking links. When citing workspace files in the subagent research document, use plain-text workspace-relative paths. Do not use markdown links or `#file:` directives for file paths — VS Code resolves these and reports errors when targets are missing, flooding the Problems tab.
+Files under `.sss/` are consumed by AI agents, not humans clicking links. When citing workspace files in the subagent research document, use plain-text workspace-relative paths. Do not use markdown links or `#file:` directives for file paths — VS Code resolves these and reports errors when targets are missing, flooding the Problems tab.
 
 * `README.md`
 * `.github/copilot-instructions.md`
-* `.copilot-tracking/research/2026-02-23/research.md`
+* `.sss/research/2026-02-23/research.md`
 
 External URLs may still use markdown link syntax.
 
