@@ -35,6 +35,10 @@ export async function runCommand(opts: {
       onPermissionRequest: approveAll,
       model,
       streaming: true,
+      // Scope tool operations (read/write/edit) to the cloned repo so file-writing
+      // prompts (e.g., "save to .sss/architecture.md") actually persist on disk
+      // rather than being returned as the assistant's text response.
+      workingDirectory: cwd,
     });
 
     const toolEvents: SessionEvent[] = [];
