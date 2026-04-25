@@ -1,0 +1,68 @@
+lockfile_version: '1'
+generated_at: '2026-04-25T03:34:31.743252+00:00'
+apm_version: 0.8.11
+dependencies:
+- repo_url: anthropics/skills
+  host: github.com
+  resolved_commit: 5128e1865d670f5d6c9cef000e6dfc4e951fb5b9
+  virtual_path: skills/frontend-design
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .github/skills/frontend-design
+  content_hash: sha256:063a0e6448123cd359ad0044cc46b0e490cc7964d45ef4bb9fd842bd2ffbca67
+- repo_url: github/awesome-copilot
+  host: github.com
+  virtual_path: instructions/markdown-gfm.instructions.md
+  is_virtual: true
+  deployed_files:
+  - .github/instructions/markdown-gfm.instructions.md
+  content_hash: sha256:229c705e168b2fc6f74baa1ac25281357c7bee73c9a8636cb898ce0640572f1c
+- repo_url: github/awesome-copilot
+  host: github.com
+  resolved_commit: 63d08d51f792d53feec8c1c06897cee870e83c18
+  virtual_path: skills/readme-blueprint-generator
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .github/skills/readme-blueprint-generator
+  content_hash: sha256:e2c7dabf2e455794260f1516e2ceda6a82dc92a409578cc184fcb0f45bddca54
+- repo_url: ricardocovo/agent-primitives
+  host: github.com
+  virtual_path: agents/developer.agent.md
+  is_virtual: true
+  deployed_files:
+  - .github/agents/developer.agent.md
+  content_hash: sha256:9b6e1dd031df9c39215893cede98981091a0e564410d11d9f5fbeb7c60ed9af1
+- repo_url: ricardocovo/agent-primitives
+  host: github.com
+  virtual_path: agents/feature-spec-generator.agent.md
+  is_virtual: true
+  deployed_files:
+  - .github/agents/feature-spec-generator.agent.md
+  content_hash: sha256:f4a5ceddf4953e4edaddccf31c774dc11b9cef54b1f7e6ddb057b1368ba5a699
+- repo_url: ricardocovo/agent-primitives
+  host: github.com
+  virtual_path: instructions/mermaid-diagrams.instructions.md
+  is_virtual: true
+  deployed_files:
+  - .github/instructions/mermaid-diagrams.instructions.md
+  content_hash: sha256:c3ca3ec1daf2c0dd19540d72bf8448807357aef49ff2d94df7c44597770feeb5
+- repo_url: ricardocovo/agent-primitives
+  host: github.com
+  resolved_commit: e1c8fe88ba1d379b9c0bf151faa70d235bec398b
+  virtual_path: skills/copilot-sdk
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .github/skills/copilot-sdk
+  content_hash: sha256:3680596b3d32932946821f6186bccc4ca9fd9ac85730adef3190fd3c4c835877
+- repo_url: ricardocovo/agent-primitives
+  host: github.com
+  resolved_commit: e1c8fe88ba1d379b9c0bf151faa70d235bec398b
+  virtual_path: skills/gh-cli
+  is_virtual: true
+  package_type: claude_skill
+  deployed_files:
+  - .github/skills/gh-cli
+  content_hash: sha256:f6f30c9e78c7f45d05c08007319ad0e041576c391410c92c04c56a586eb1ba35

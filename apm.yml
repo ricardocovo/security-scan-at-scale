@@ -1,0 +1,16 @@
+name: security-scan-at-scale
+version: 1.0.0
+description: APM project for security-scan-at-scale
+author: Ricardo Covo
+dependencies:
+  apm: 
+    - ricardocovo/agent-primitives/agents/developer.agent.md
+    - ricardocovo/agent-primitives/agents/feature-spec-generator.agent.md
+    - ricardocovo/agent-primitives/instructions/mermaid-diagrams.instructions.md
+    - ricardocovo/agent-primitives/skills/gh-cli
+    - ricardocovo/agent-primitives/skills/copilot-sdk
+    - github/awesome-copilot/instructions/markdown-gfm.instructions.md
+    - github/awesome-copilot/skills/readme-blueprint-generatorap
+    - anthropics/skills/skills/frontend-design
+
+scripts: {}
