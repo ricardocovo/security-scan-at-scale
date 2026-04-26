@@ -27,7 +27,7 @@ function labelFor(step: string): string {
 }
 
 function terminalWidth(): number {
-  return process.stdout.columns ?? 120;
+  return Math.min(process.stdout.columns ?? 120, 120);
 }
 
 function formatElapsed(startedAt: number | null): string {
@@ -115,12 +115,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const overallElapsed = Math.floor((Date.now() - overallStart) / 1000);
 
   const tWidth = terminalWidth();
-  // Column widths: spinner=2, elapsed=8, model=22, repo gets 30% of remaining, step fills the rest
+  // Column widths: STEP_W is fixed (longest label is "running cmd 1" = 13 chars)
+  // REPO_W absorbs the remaining space
   const SPINNER_W = 2;
-  const ELAPSED_W = 8;
+  const ELAPSED_W = 10;
   const MODEL_W = 22;
-  const REPO_W = Math.max(20, Math.floor((tWidth - SPINNER_W - ELAPSED_W - MODEL_W - 4) * 0.35));
-  const STEP_W = tWidth - SPINNER_W - REPO_W - MODEL_W - ELAPSED_W - 4;
+  const STEP_W = 16;
+  const REPO_W = Math.max(20, tWidth - SPINNER_W - ELAPSED_W - MODEL_W - STEP_W - 4);
   const divider = '-'.repeat(tWidth);
 
   // Stable row order: preserve insertion order (queue order)

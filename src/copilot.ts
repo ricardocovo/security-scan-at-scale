@@ -27,8 +27,12 @@ export async function runCommand(opts: {
     ...(token ? { GITHUB_TOKEN: token } : {}),
   };
 
-  // cwd is set on the CopilotClient, not on the session
+  // Suppress SDK startup banner — CopilotClient writes directly to process.stdout,
+  // bypassing Ink's patchConsole, which causes the title to appear multiple times.
+  const originalWrite = process.stdout.write.bind(process.stdout);
+  (process.stdout as unknown as { write: () => boolean }).write = () => true;
   const client = new CopilotClient({ cwd, env: clientEnv });
+  process.stdout.write = originalWrite;
 
   try {
     const session = await client.createSession({
