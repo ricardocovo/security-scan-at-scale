@@ -2,6 +2,22 @@
 
 A Node.js/TypeScript CLI that orchestrates security scans across many GitHub repositories and multiple LLM models in parallel. For each `(repo, model)` pair it clones the repo, provisions agent primitives via `apm install`, and runs one or more fresh GitHub Copilot SDK sessions (one per configured command). Live progress is rendered in an Ink-based TUI dashboard, and outputs are persisted as per-scan Markdown reports plus an aggregated JSON/Markdown summary.
 
+## Technology Stack
+
+| Layer | Technology |
+|---|---|
+| Runtime | Node.js 18+, ESM |
+| Language | TypeScript 5 (NodeNext, strict mode) |
+| Dev runner | `tsx` (no build step needed for development) |
+| CLI framework | `commander` |
+| Config schema | `zod` + `js-yaml` |
+| Concurrency | `p-queue` |
+| Git operations | `simple-git` |
+| APM provisioning | `apm` CLI + `execa` |
+| Copilot sessions | `@github/copilot-sdk` |
+| TUI | `ink` + `ink-spinner` + `ink-table` + `react` |
+| Env vars | `dotenv` |
+
 ## Prerequisites
 
 | Tool | Notes |
@@ -25,12 +41,19 @@ cp config.example.yml config.yml
 # 3. Export your GitHub token (or add it to a .env file)
 export GITHUB_TOKEN=ghp_...
 # Alternatively: echo 'GITHUB_TOKEN=ghp_...' > .env
+
+# 4. (Optional) Build for production
+npm run build   # compiles TypeScript → dist/
 ```
 
 ## Usage
 
 ```bash
-# Interactive TUI (default) — config.yml is used automatically if --config is omitted
+# Development — run directly with tsx (no build required)
+npm run dev -- -c config.yml
+npm run dev -- -c config.yml --no-ui
+
+# Production — run compiled output (requires npm run build first)
 npm start
 npm start -- -c config.yml
 
@@ -42,6 +65,14 @@ npm start -- --concurrency 4
 
 # Combine flags
 npm start -- -c config.yml --concurrency 4 --no-ui
+```
+
+After `npm run build` the `security-scan` binary is also available:
+
+```bash
+./dist/cli.js -c config.yml
+# or after `npm link` / `npm install -g .`:
+security-scan -c config.yml
 ```
 
 When the run finishes the summary is written to `results/summary.md` and its path is printed to stdout. Per-scan reports are in `results/<scanId>/report.md`.
