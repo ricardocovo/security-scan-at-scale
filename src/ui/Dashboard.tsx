@@ -15,15 +15,19 @@ const STEP_LABELS: Record<string, string> = {
   queued: 'queued',
   clone: 'cloning…',
   apm: 'apm install…',
-  'cmd 1': 'cmd 1…',
-  'cmd 2': 'cmd 2…',
-  'cmd 3': 'cmd 3…',
+  'cmd 1': 'running cmd 1',
+  'cmd 2': 'running cmd 2',
+  'cmd 3': 'running cmd 3',
   done: 'done',
   failed: 'failed',
 };
 
 function labelFor(step: string): string {
   return STEP_LABELS[step] ?? step;
+}
+
+function terminalWidth(): number {
+  return process.stdout.columns ?? 120;
 }
 
 function formatElapsed(startedAt: number | null): string {
@@ -110,11 +114,21 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const queued = rows.filter((r) => r.status === 'queued').length;
   const overallElapsed = Math.floor((Date.now() - overallStart) / 1000);
 
+  const tWidth = terminalWidth();
+  // Column widths: spinner=2, elapsed=8, model=22, repo gets 30% of remaining, step fills the rest
+  const SPINNER_W = 2;
+  const ELAPSED_W = 8;
+  const MODEL_W = 22;
+  const REPO_W = Math.max(20, Math.floor((tWidth - SPINNER_W - ELAPSED_W - MODEL_W - 4) * 0.35));
+  const STEP_W = tWidth - SPINNER_W - REPO_W - MODEL_W - ELAPSED_W - 4;
+  const divider = '-'.repeat(tWidth);
+
   // Stable row order: preserve insertion order (queue order)
   const stableRows = rows;
 
   return (
-    <Box flexDirection="column" paddingTop={1}>
+    <Box flexDirection="column">
+      <Text>{''}</Text>
       {/* Header */}
       <Box marginBottom={1}>
         <Text bold color="cyan">
@@ -124,13 +138,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       {/* Table header */}
       <Box>
-        <Text bold>{padRight('Repository', 40)}</Text>
-        <Text bold>{padRight('Model', 20)}</Text>
-        <Text bold>{padRight('Step', 14)}</Text>
+        <Text bold>{padRight('Repository', SPINNER_W + REPO_W)}</Text>
+        <Text bold>{padRight('Model', MODEL_W)}</Text>
+        <Text bold>{padRight('Step', STEP_W)}</Text>
         <Text bold>{'Elapsed'}</Text>
       </Box>
       <Box>
-        <Text dimColor>{'-'.repeat(80)}</Text>
+        <Text dimColor>{divider}</Text>
       </Box>
 
       {/* Scan rows */}
@@ -142,7 +156,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
         return (
           <Box key={row.scanId}>
-            <Box width={2}>
+            <Box width={SPINNER_W}>
               {isActive ? (
                 <Text color="yellow">
                   <Spinner type="dots" />
@@ -151,9 +165,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <Text> </Text>
               )}
             </Box>
-            <Text color={color}>{padRight(shortRepo(row.repo), 38)}</Text>
-            <Text color={color}>{padRight(row.model, 20)}</Text>
-            <Text color={color}>{padRight(labelFor(row.currentStep), 14)}</Text>
+            <Text color={color}>{padRight(shortRepo(row.repo), REPO_W)}</Text>
+            <Text color={color}>{padRight(row.model, MODEL_W)}</Text>
+            <Text color={color}>{padRight(labelFor(row.currentStep), STEP_W)}</Text>
             <Text color={color}>
               {isActive || isDone || isFailed ? formatElapsed(row.startedAt) : '—'}
             </Text>
@@ -163,7 +177,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       {/* Footer */}
       <Box marginTop={1}>
-        <Text dimColor>{'-'.repeat(80)}</Text>
+        <Text dimColor>{divider}</Text>
       </Box>
       <Box>
         <Text>

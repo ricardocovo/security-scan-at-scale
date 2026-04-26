@@ -66,7 +66,8 @@ async function main(): Promise<void> {
         events: orchestrator.events,
         getState: orchestrator.getState,
         summaryPath,
-      })
+      }),
+      { patchConsole: true }
     );
 
     // Run orchestrator and wait
