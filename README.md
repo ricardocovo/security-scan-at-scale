@@ -1,6 +1,49 @@
 # Security Scan at Scale
 
-A Node.js/TypeScript CLI that orchestrates security scans across many GitHub repositories and multiple LLM models in parallel. For each `(repo, model)` pair it clones the repo, provisions agent primitives via `apm install`, and runs one or more fresh GitHub Copilot SDK sessions (one per configured command). Live progress is rendered in an Ink-based TUI dashboard, and outputs are persisted as per-scan Markdown reports plus an aggregated JSON/Markdown summary.
+A Node.js/TypeScript CLI that orchestrates security scans across many GitHub repositories and multiple LLM models in parallel. For each `(repo, model)` pair it clones the repo, optionally provisions agent primitives via `apm install`, and runs one or more fresh GitHub Copilot SDK sessions (one per configured command). Live progress is rendered in an Ink-based TUI dashboard, and outputs are persisted as per-scan Markdown reports plus an aggregated JSON/Markdown summary.
+
+## Architecture
+
+The following diagram shows how the main components interact during a run.
+
+```mermaid
+flowchart TD
+    subgraph CLI["CLI Layer"]
+        CLIEntry[cli.ts]
+    end
+
+    subgraph Core["Core Pipeline"]
+        ConfigLoader[config.ts\nZod schema + YAML loader]
+        Orchestrator[orchestrator.ts\np-queue fan-out]
+        Scanner[scanner.ts\nper repo × model pipeline]
+    end
+
+    subgraph Steps["Scan Steps"]
+        Git[git.ts\nshallow clone]
+        APM[apm.ts\napm install]
+        Copilot[copilot.ts\nCopilot SDK session]
+    end
+
+    subgraph Output["Output"]
+        Results[results.ts\nreport.md + summary]
+        ResultsDir[(results/)]
+    end
+
+    subgraph TUI["TUI"]
+        Dashboard[Dashboard.tsx\nInk dashboard]
+    end
+
+    CLIEntry --> ConfigLoader
+    CLIEntry --> Orchestrator
+    CLIEntry --> Dashboard
+    Orchestrator -- "emit events" --> Dashboard
+    Orchestrator --> Scanner
+    Scanner --> Git
+    Scanner --> APM
+    Scanner --> Copilot
+    Scanner --> Results
+    Results --> ResultsDir
+```
 
 ## Technology Stack
 
@@ -15,7 +58,7 @@ A Node.js/TypeScript CLI that orchestrates security scans across many GitHub rep
 | Git operations | `simple-git` |
 | APM provisioning | `apm` CLI + `execa` |
 | Copilot sessions | `@github/copilot-sdk` |
-| TUI | `ink` + `ink-spinner` + `ink-table` + `react` |
+| TUI | `ink` + `ink-spinner` + `react` |
 | Env vars | `dotenv` |
 
 ## Prerequisites
@@ -125,6 +168,21 @@ src/
     Dashboard.tsx  # Ink TUI dashboard
 ```
 
+## TUI Dashboard
+
+When `--ui` is enabled (default), a live terminal dashboard is rendered using Ink. It shows one row per `(repo, model)` pair with the following columns:
+
+| Column | Description |
+|---|---|
+| Repository | Short repo path (e.g. `your-org/your-repo`) |
+| Model | Copilot model identifier |
+| Step | Current pipeline step (`cloning…`, `apm install…`, command name, `done`, `failed`) |
+| Elapsed | Time since the scan started |
+
+**Elapsed time formatting** — both per-row and the overall footer timer display seconds (`12s`) for the first minute, then switch to minutes and seconds (`1m 12s`) once 60 seconds have elapsed.
+
+A summary footer shows total, completed (✅), failed (❌), in-flight (⏳), and queued counts alongside the overall elapsed time. Press `Ctrl-C` to abort at any time.
+
 ## Outputs
 
 | Path | Description |
@@ -132,6 +190,14 @@ src/
 | `results/<scanId>/report.md` | Per-scan report with prompts, responses, tool calls, timing |
 | `results/summary.json` | Machine-readable matrix of all scan results |
 | `results/summary.md` | Human-readable ✅/❌ matrix linking to per-scan reports |
+
+## Contributing
+
+1. Fork the repo and create a feature branch.
+2. Run `npm install` and use `npm run dev` to iterate without a build step.
+3. TypeScript is set to strict mode — keep it that way.
+4. Add or update tests for any changed behaviour.
+5. Open a pull request with a clear description of the change and why it is needed.
 
 ## Security Notes
 
