@@ -15,14 +15,12 @@ const STEP_LABELS: Record<string, string> = {
   queued: 'queued',
   clone: 'cloning…',
   apm: 'apm install…',
-  'cmd 1': 'running cmd 1',
-  'cmd 2': 'running cmd 2',
-  'cmd 3': 'running cmd 3',
   done: 'done',
   failed: 'failed',
 };
 
-function labelFor(step: string): string {
+function labelFor(step: string, commandName?: string): string {
+  if (step.startsWith('cmd ') && commandName) return commandName;
   return STEP_LABELS[step] ?? step;
 }
 
@@ -30,9 +28,9 @@ function terminalWidth(): number {
   return Math.min(process.stdout.columns ?? 120, 120);
 }
 
-function formatElapsed(startedAt: number | null): string {
+function formatElapsed(startedAt: number | null, finishedAt?: number | null): string {
   if (startedAt === null) return '—';
-  const ms = Date.now() - startedAt;
+  const ms = (finishedAt ?? Date.now()) - startedAt;
   const s = Math.floor(ms / 1000);
   const m = Math.floor(s / 60);
   if (m > 0) return `${m}m ${s % 60}s`;
@@ -168,9 +166,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </Box>
             <Text color={color}>{padRight(shortRepo(row.repo), REPO_W)}</Text>
             <Text color={color}>{padRight(row.model, MODEL_W)}</Text>
-            <Text color={color}>{padRight(labelFor(row.currentStep), STEP_W)}</Text>
+            <Text color={color}>{padRight(labelFor(row.currentStep, row.currentCommandName), STEP_W)}</Text>
             <Text color={color}>
-              {isActive || isDone || isFailed ? formatElapsed(row.startedAt) : '—'}
+              {isActive || isDone || isFailed ? formatElapsed(row.startedAt, isDone || isFailed ? row.finishedAt : null) : '—'}
             </Text>
           </Box>
         );

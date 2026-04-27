@@ -10,6 +10,7 @@ export interface ScanState {
   model: string;
   status: ScanStatus;
   currentStep: string;
+  currentCommandName?: string;
   startedAt: number | null;
   finishedAt: number | null;
   durationMs: number | null;
@@ -58,6 +59,7 @@ export function createOrchestrator(config: Config, token?: string): Orchestrator
       else if (event === 'command:start') {
         const index = (payload['index'] as number) ?? 0;
         scan.currentStep = `cmd ${index + 1}`;
+        scan.currentCommandName = payload['name'] as string | undefined;
       }
     }
     events.emit(event, payload);
