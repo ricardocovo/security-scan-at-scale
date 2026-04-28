@@ -25,7 +25,7 @@ flowchart TD
     end
 
     subgraph Output["Output"]
-        Results[results.ts\nreport.md + summary]
+        Results[results.ts\ncollect .sss/ artifacts]
         ResultsDir[(results/)]
     end
 
@@ -118,7 +118,7 @@ After `npm run build` the `security-scan` binary is also available:
 security-scan -c config.yml
 ```
 
-When the run finishes the summary is written to `results/summary.md` and its path is printed to stdout. Per-scan reports are in `results/<scanId>/report.md`.
+When the run finishes, each scan's `.sss/` artifacts are collected into `results/<owner>-<repo>/<model>/`, alongside that scan's `scan.log`.
 
 ## Configuration
 
@@ -163,7 +163,7 @@ src/
   git.ts           # shallow clone via simple-git
   apm.ts           # apm.yml provisioning + apm install
   copilot.ts       # Copilot SDK session runner
-  results.ts       # report.md + summary.json/md writer
+  results.ts       # collect .sss/ artifacts into results/<owner>-<repo>/<model>/
   ui/
     Dashboard.tsx  # Ink TUI dashboard
 ```
@@ -187,9 +187,8 @@ A summary footer shows total, completed (✅), failed (❌), in-flight (⏳), an
 
 | Path | Description |
 |---|---|
-| `results/<scanId>/report.md` | Per-scan report with prompts, responses, tool calls, timing |
-| `results/summary.json` | Machine-readable matrix of all scan results |
-| `results/summary.md` | Human-readable ✅/❌ matrix linking to per-scan reports |
+| `results/<owner>-<repo>/<model>/` | Contents of the scan's `.sss/` folder (whatever the configured commands wrote) |
+| `results/<owner>-<repo>/<model>/scan.log` | Per-scan log of pipeline events (clone, apm, command timings) |
 
 ## Contributing
 

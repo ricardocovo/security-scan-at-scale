@@ -1,6 +1,29 @@
 import { CopilotClient, approveAll } from '@github/copilot-sdk';
 import type { SessionEvent } from '@github/copilot-sdk';
 
+// Capture the REAL process.stdout.write exactly once at module load. We use a
+// reference-counted suppression so concurrent scans that all want to mute the
+// SDK's startup banner don't race each other into permanently installing the
+// no-op writer (which would silently freeze Ink's dashboard renderer).
+const realStdoutWrite = process.stdout.write.bind(process.stdout);
+let stdoutSuppressionCount = 0;
+
+function suppressStdout(): void {
+  stdoutSuppressionCount++;
+  if (stdoutSuppressionCount === 1) {
+    (process.stdout as unknown as { write: () => boolean }).write = () => true;
+  }
+}
+
+function restoreStdout(): void {
+  if (stdoutSuppressionCount === 0) return;
+  stdoutSuppressionCount--;
+  if (stdoutSuppressionCount === 0) {
+    (process.stdout as unknown as { write: typeof realStdoutWrite }).write =
+      realStdoutWrite;
+  }
+}
+
 export interface CommandResult {
   name: string;
   prompt: string;
@@ -25,14 +48,23 @@ export async function runCommand(opts: {
   const clientEnv: Record<string, string> = {
     ...(process.env as Record<string, string>),
     ...(token ? { GITHUB_TOKEN: token } : {}),
+    // Suppress Node.js experimental-feature warnings (e.g. SQLite) emitted by
+    // the Copilot CLI subprocess. Those warnings bypass Ink's patchConsole and
+    // corrupt cursor tracking on the shared TTY.
+    NODE_NO_WARNINGS: '1',
   };
 
-  // Suppress SDK startup banner — CopilotClient writes directly to process.stdout,
-  // bypassing Ink's patchConsole, which causes the title to appear multiple times.
-  const originalWrite = process.stdout.write.bind(process.stdout);
-  (process.stdout as unknown as { write: () => boolean }).write = () => true;
+  // Suppress SDK startup banner — CopilotClient (and createSession) write directly
+  // to process.stdout, bypassing Ink's patchConsole. Suppression is reference
+  // counted at module scope so concurrent scans don't race on stdout.write.
+  suppressStdout();
+  let stdoutRestored = false;
+  const safeRestoreStdout = (): void => {
+    if (stdoutRestored) return;
+    stdoutRestored = true;
+    restoreStdout();
+  };
   const client = new CopilotClient({ cwd, env: clientEnv });
-  process.stdout.write = originalWrite;
 
   try {
     const session = await client.createSession({
@@ -44,6 +76,10 @@ export async function runCommand(opts: {
       // rather than being returned as the assistant's text response.
       workingDirectory: cwd,
     });
+
+    // Flush any async-queued banner writes from the SDK before restoring stdout.
+    await new Promise<void>((resolve) => setImmediate(resolve));
+    safeRestoreStdout();
 
     const toolEvents: SessionEvent[] = [];
     let finalContent = '';
@@ -74,6 +110,8 @@ export async function runCommand(opts: {
       status: 'success',
     };
   } catch (err) {
+    // Always restore stdout in case createSession threw before we could restore it.
+    safeRestoreStdout();
     return {
       name,
       prompt,
@@ -87,5 +125,4 @@ export async function runCommand(opts: {
     await client.stop();
   }
 }
-
 

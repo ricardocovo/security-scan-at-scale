@@ -7,7 +7,6 @@ import type { ScanState, StateSnapshot } from '../orchestrator.js';
 export interface DashboardProps {
   events: EventEmitter;
   getState: () => StateSnapshot;
-  summaryPath: string;
   onDone?: () => void;
 }
 
@@ -44,7 +43,6 @@ function shortRepo(url: string): string {
 export const Dashboard: React.FC<DashboardProps> = ({
   events,
   getState,
-  summaryPath,
   onDone,
 }) => {
   const { exit } = useApp();
@@ -110,8 +108,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const failed = rows.filter((r) => r.status === 'failed').length;
   const inFlight = rows.filter((r) => r.status === 'running').length;
   const queued = rows.filter((r) => r.status === 'queued').length;
-  const overallElapsed = Math.floor((Date.now() - overallStart) / 1000);
-
   const tWidth = terminalWidth();
   // Column widths: STEP_W is fixed (longest label is "running cmd 1" = 13 chars)
   // REPO_W absorbs the remaining space
@@ -197,7 +193,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
           {'  queued: '}
           <Text bold>{queued}</Text>
           {'  overall: '}
-          <Text bold>{overallElapsed}s</Text>
+          <Text bold>{formatElapsed(overallStart, runDone ? undefined : undefined)}</Text>
         </Text>
       </Box>
 
@@ -206,9 +202,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <Box marginTop={1} flexDirection="column">
           <Text color="green" bold>
             Run complete!
-          </Text>
-          <Text>
-            Summary: <Text underline>{summaryPath}</Text>
           </Text>
         </Box>
       )}

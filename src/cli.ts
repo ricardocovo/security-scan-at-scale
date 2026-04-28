@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 import 'dotenv/config';
 import { program } from 'commander';
-import { resolve } from 'path';
 import { loadConfig, ConfigError } from './config.js';
 import { createOrchestrator } from './orchestrator.js';
-import { writeReport, writeSummary } from './results.js';
 
 program
   .name('security-scan')
@@ -50,8 +48,6 @@ async function main(): Promise<void> {
     }
   }
 
-  const summaryPath = resolve(config.resultsDir, 'summary.md');
-
   // Create orchestrator
   const orchestrator = createOrchestrator(config, token);
 
@@ -65,25 +61,37 @@ async function main(): Promise<void> {
       React.createElement(Dashboard, {
         events: orchestrator.events,
         getState: orchestrator.getState,
-        summaryPath,
       }),
       { patchConsole: true }
     );
+
+    // The Copilot SDK forwards its subprocess stderr directly to process.stderr,
+    // bypassing Ink's patchConsole. This corrupts Ink's cursor tracking because
+    // stdout and stderr share the same TTY. Suppress those raw TTY writes while
+    // the TUI is active — the noise (e.g. Node.js SQLite experimental warnings)
+    // is not meaningful to the user and is already captured in the scan log files.
+    const originalStderrWrite = process.stderr.write.bind(process.stderr);
+    (process.stderr as NodeJS.WriteStream).write = (
+      _chunk: Uint8Array | string,
+      encodingOrCb?: BufferEncoding | ((err?: Error | null) => void),
+      cb?: (err?: Error | null) => void
+    ): boolean => {
+      const callback = typeof encodingOrCb === 'function' ? encodingOrCb : cb;
+      callback?.();
+      return true;
+    };
 
     // Run orchestrator and wait
     const results = await orchestrator.run();
     orchestrator.events.emit('run:done', {});
 
-    // Write reports + summary
-    await Promise.all(results.map((r) => writeReport(r, config.resultsDir)));
-    await writeSummary(results, config.resultsDir, config.models);
+    // Restore stderr before any teardown writes
+    (process.stderr as NodeJS.WriteStream).write = originalStderrWrite as NodeJS.WriteStream['write'];
 
     // Let TUI render final state, then unmount
     await new Promise((resolve) => setTimeout(resolve, 500));
     unmount();
     await waitUntilExit();
-
-    console.log(`\nSummary written to: ${summaryPath}`);
 
     const anyFailed = results.some((r) => r.status === 'failed');
     process.exit(anyFailed ? 1 : 0);
@@ -145,11 +153,6 @@ async function main(): Promise<void> {
     );
 
     const results = await orchestrator.run();
-
-    await Promise.all(results.map((r) => writeReport(r, config.resultsDir)));
-    await writeSummary(results, config.resultsDir, config.models);
-
-    console.log(`\nSummary written to: ${summaryPath}`);
 
     const anyFailed = results.some((r) => r.status === 'failed');
     process.exit(anyFailed ? 1 : 0);

@@ -3,6 +3,7 @@ import PQueue from 'p-queue';
 import type { Config } from './config.js';
 import { runScan, computeScanId } from './scanner.js';
 import type { ScanResult, ScanStatus } from './scanner.js';
+import { collectSSSResults } from './results.js';
 
 export interface ScanState {
   scanId: string;
@@ -83,6 +84,8 @@ export function createOrchestrator(config: Config, token?: string): Orchestrator
             scan.durationMs = result.durationMs;
             if (result.error) scan.error = result.error;
 
+            await collectSSSResults(result, config.resultsDir, config.workspaceDir);
+
             if (result.status === 'done') {
               events.emit('scan:done', { scanId, result });
             } else {
@@ -96,9 +99,7 @@ export function createOrchestrator(config: Config, token?: string): Orchestrator
             scan.finishedAt = Date.now();
             scan.durationMs = scan.finishedAt - (scan.startedAt ?? scan.finishedAt);
             scan.error = String(err);
-            events.emit('scan:failed', { scanId, error: String(err) });
-
-            results.push({
+            const errResult: ScanResult = {
               scanId,
               repo: repo.url,
               model,
@@ -108,7 +109,11 @@ export function createOrchestrator(config: Config, token?: string): Orchestrator
               durationMs: scan.durationMs,
               commandResults: [],
               error: String(err),
-            });
+            };
+            await collectSSSResults(errResult, config.resultsDir, config.workspaceDir);
+            events.emit('scan:failed', { scanId, error: String(err) });
+
+            results.push(errResult);
           }
         });
 
