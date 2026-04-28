@@ -1,6 +1,6 @@
 ---
 description: "STRIDE-based security model analysis per operational bucket with threat table format and data flow analysis - Brought to you by microsoft/hve-core"
-applyTo: '**/.sss/security-plans/**'
+applyTo: '**/.sss-plans/**'
 ---
 
 # Security Model

@@ -48,7 +48,7 @@ If the project name cannot be derived from the discovered artifacts and `${input
 
 ### State Initialization
 
-Create the project directory at `.sss/security-plans/{project-slug}/` and initialize `state.json` with:
+Create the project directory at `.sss-plans/{project-slug}/` and initialize `state.json` with:
 
 * `entryMode` set to `"from-prd"`
 * `currentPhase` set to `1`

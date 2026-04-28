@@ -55,7 +55,7 @@ Key scoping questions cover:
 * Compliance targets (Scorecard score threshold, SLSA level, Best Practices Badge tier)
 * Repository hosting (GitHub, Azure DevOps, GitLab)
 
-After scoping, check whether a Security Planner assessment already exists. If `.sss/security-plans/` contains artifacts for this project, read relevant context and store the path in `securityPlannerLink`. Similarly check for RAI Planner artifacts in `.sss/rai-plans/`.
+After scoping, check whether a Security Planner assessment already exists. If `.sss-plans/` contains artifacts for this project, read relevant context and store the path in `securityPlannerLink`. Similarly check for RAI Planner artifacts in `.sss/rai-plans/`.
 
 ### Phase 2: Supply Chain Assessment
 
@@ -86,7 +86,7 @@ Four entry modes determine how Phase 1 begins. All converge at Phase 2 once scop
 | capture            | Fresh start          | Conversation                        | Guided Q&A to build project context from scratch          |
 | from-prd           | PRD exists           | `.sss/prd-sessions/`   | Extract supply chain requirements from PRD                |
 | from-brd           | BRD exists           | `.sss/brd-sessions/`   | Extract supply chain requirements from BRD                |
-| from-security-plan | Security plan exists | `.sss/security-plans/` | Extend Security Planner output with supply chain coverage |
+| from-security-plan | Security plan exists | `.sss-plans/` | Extend Security Planner output with supply chain coverage |
 
 ### Capture Mode
 
@@ -102,7 +102,7 @@ Activated when the user invokes `sssc-from-brd.prompt.md`. Scans `.sss/brd-sessi
 
 ### From-Security-Plan Mode
 
-Activated when the user invokes `sssc-from-security-plan.prompt.md`. Reads the existing security plan from `.sss/security-plans/` to extract technology stack, deployment model, and security controls already identified. Uses this as a foundation to scope the supply chain assessment, avoiding redundant questions.
+Activated when the user invokes `sssc-from-security-plan.prompt.md`. Reads the existing security plan from `.sss-plans/` to extract technology stack, deployment model, and security controls already identified. Uses this as a foundation to scope the supply chain assessment, avoiding redundant questions.
 
 ## State Management Protocol
 

@@ -1,6 +1,6 @@
 ---
 description: "Embedded OWASP and NIST security standards with researcher subagent delegation for CIS, WAF, CAF, and other runtime lookups - Brought to you by microsoft/hve-core"
-applyTo: '**/.sss/security-plans/**'
+applyTo: '**/.sss-plans/**'
 ---
 
 # Standards Mapping

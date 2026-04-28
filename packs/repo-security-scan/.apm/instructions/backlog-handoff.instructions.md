@@ -1,6 +1,6 @@
 ---
 description: "Dual-format backlog handoff for ADO and GitHub with content sanitization, autonomy tiers, and work item templates - Brought to you by microsoft/hve-core"
-applyTo: '**/.sss/security-plans/**'
+applyTo: '**/.sss-plans/**'
 ---
 
 # Backlog Handoff
@@ -117,7 +117,7 @@ Sanitization rules:
 
 After generating each work item, scan the output for `.sss/`. If found, strip the path and log the sanitization action.
 
-Debug mode: Retain full paths in `.sss/security-plans/{slug}/debug/` output only. Paths never appear in external-facing work items.
+Debug mode: Retain full paths in `.sss-plans/{slug}/debug/` output only. Paths never appear in external-facing work items.
 
 ## Three-Tier Autonomy Model
 
@@ -125,7 +125,7 @@ Three tiers control how work items reach the target backlog system.
 
 * Full autonomy: Create work items directly via MCP tools. The user pre-approves batch creation, and all items are created in a single operation.
 * Partial autonomy (default): Present each batch of 5 to 10 items for user review before creation. The user can modify, skip, or approve individual items.
-* Manual: Produce an output file at `.sss/security-plans/{slug}/backlog-handoff.md` without invoking MCP tools. The user imports items into the backlog system independently.
+* Manual: Produce an output file at `.sss-plans/{slug}/backlog-handoff.md` without invoking MCP tools. The user imports items into the backlog system independently.
 
 Ask the user in Phase 5 which tier they prefer. Default to partial autonomy on first use. Store the selected preference in the session state JSON under `userPreferences.autonomyTier`.
 

@@ -1,6 +1,6 @@
 ---
 description: "Security Planner identity, six-phase orchestration, state management, and session recovery protocols - Brought to you by microsoft/hve-core"
-applyTo: '**/.sss/security-plans/**'
+applyTo: '**/.sss-plans/**'
 ---
 
 # Security Planner Identity
@@ -106,7 +106,7 @@ PRD/BRD-seeded assessment. Scan `.sss/prd-sessions/` and `.sss/brd-sessions/` fo
 
 ## State Management
 
-State persists across sessions in a JSON file at `.sss/security-plans/{project-slug}/state.json`.
+State persists across sessions in a JSON file at `.sss-plans/{project-slug}/state.json`.
 
 ### State Schema
 

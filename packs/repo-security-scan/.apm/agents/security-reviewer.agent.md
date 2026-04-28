@@ -86,13 +86,13 @@ One verdict block per finding. Required fields per block:
 
 ## Orchestrator Constants
 
-Report directory: `.sss/security`
+Report directory: `.sss`
 
-Report path pattern (audit): `.sss/security/{{YYYY-MM-DD}}/security-report-{{NNN}}.md`
+Report path pattern (audit): `.sss/{{YYYY-MM-DD}}/security-report-{{NNN}}.md`
 
-Report path pattern (diff): `.sss/security/{{YYYY-MM-DD}}/security-report-diff-{{NNN}}.md`
+Report path pattern (diff): `.sss/{{YYYY-MM-DD}}/security-report-diff-{{NNN}}.md`
 
-Report path pattern (plan): `.sss/security/{{YYYY-MM-DD}}/plan-risk-assessment-{{NNN}}.md`
+Report path pattern (plan): `.sss/{{YYYY-MM-DD}}/plan-risk-assessment-{{NNN}}.md`
 
 Sequence number resolution: Determine `{{NNN}}` by listing existing reports in the date directory, extracting the highest sequence number, incrementing by one, and zero-padding to three digits. Start at `001` when no reports exist.
 

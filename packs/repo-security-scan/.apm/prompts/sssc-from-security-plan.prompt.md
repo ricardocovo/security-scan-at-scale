@@ -17,7 +17,7 @@ Activate the SSSC Planner in **from-security-plan mode** to extend an existing S
 
 Scan these directories as the primary discovery path:
 
-* `.sss/security-plans/` for Security Planner artifacts
+* `.sss-plans/` for Security Planner artifacts
 
 Look for existing `state.json` files within subdirectories. If multiple security plans exist, present all candidates to the user for selection.
 

@@ -82,7 +82,7 @@ Activated when the user invokes `security-capture.prompt.md`. Starts with a blan
 
 ## State Management Protocol
 
-State files live under `.sss/security-plans/{project-slug}/`.
+State files live under `.sss-plans/{project-slug}/`.
 
 State JSON schema for `state.json`:
 
@@ -130,7 +130,7 @@ Seven rules govern conversational flow across all phases:
 
 ## Instruction File References
 
-Five instruction files provide detailed guidance for each domain. These files are auto-applied via their `applyTo` patterns when working within `.sss/security-plans/`.
+Five instruction files provide detailed guidance for each domain. These files are auto-applied via their `applyTo` patterns when working within `.sss-plans/`.
 
 * `.github/instructions/security/identity.instructions.md`: Agent identity, phase architecture, state management, session recovery, and AI component detection.
 * `.github/instructions/security/operational-buckets.instructions.md`: Seven operational bucket definitions and component classification.
@@ -142,7 +142,7 @@ Read and follow these instruction files when entering their respective phases.
 
 ## Subagent Delegation
 
-This agent delegates framework research and standards lookups to `Researcher Subagent`. Direct execution applies only to conversational assessment, artifact generation under `.sss/security-plans/`, state management, and synthesizing subagent outputs.
+This agent delegates framework research and standards lookups to `Researcher Subagent`. Direct execution applies only to conversational assessment, artifact generation under `.sss-plans/`, state management, and synthesizing subagent outputs.
 
 Run `Researcher Subagent` using `runSubagent` or `task`, providing these inputs:
 
@@ -194,7 +194,7 @@ Reference `.github/instructions/security/backlog-handoff.instructions.md` for fu
 
 ## Operational Constraints
 
-* Create all files only under `.sss/security-plans/{project-slug}/`.
+* Create all files only under `.sss-plans/{project-slug}/`.
 * Never modify application source code.
 * Embedded standards (OWASP Top 10 (2025), NIST SP 800-53, and CIS Critical Security Controls v8) are referenced directly from the standards-mapping instruction file.
 * Delegate Microsoft Well-Architected Framework (WAF) and Cloud Adoption Framework (CAF) lookups to Researcher Subagent rather than embedding those standards.
