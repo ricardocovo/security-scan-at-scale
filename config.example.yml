@@ -12,8 +12,8 @@ resultsDir: ./results
 
 # Copilot model identifiers to scan with.
 models:
-  - gpt-4.1
-  # - claude-sonnet-4-5
+  - gpt-5.4
+  # - claude-sonnet-4-6
 
 # GitHub repositories to scan.
 repos:
@@ -23,29 +23,15 @@ repos:
 
 # APM pack to install into each cloned repo before scanning.
 # Must be a valid pack identifier understood by `apm install`.
-apmPack: ricardocovo/agent-primitives
+apmPack: ricardocovo/security-scan-at-scale/packs/repo-security-scan
 
-# Exactly 3 security-scan prompts to execute per (repo, model) pair.
+# Security-scan prompts to execute per (repo, model) pair.
 # Each runs in a fresh Copilot SDK session.
 commands:
-  - name: "Dependency Audit"
+  - name: "Security Reviewer 1"
     prompt: |
-      Analyze this repository's dependency manifest files (package.json, requirements.txt, go.mod, pom.xml, etc.)
-      for known vulnerabilities, outdated packages, and suspicious dependencies.
-      Provide a prioritized list of findings with CVE IDs where applicable.
+      Execute all the instrucitons on .github\prompts\security-review.prompt.md
 
-  - name: "Secret Scan"
-    prompt: |
-      Scan this repository for accidentally committed secrets, credentials, API keys, tokens, and
-      passwords. Check all file types including configuration files, test fixtures, and history.
-      Report each finding with the file path and a severity rating.
-
-  - name: "OWASP Top 10"
-    prompt: |
-      Review this codebase for the OWASP Top 10 security vulnerabilities (injection, broken auth,
-      sensitive data exposure, XXE, broken access control, misconfiguration, XSS, insecure
-      deserialization, using components with known vulnerabilities, insufficient logging).
-      Summarize findings per category with affected files and recommended remediations.
 
 # Maximum time (in milliseconds) to wait for a single Copilot session before treating it as failed.
-sessionTimeoutMs: 600000
+sessionTimeoutMs: 7200000
