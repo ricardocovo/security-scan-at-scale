@@ -124,11 +124,13 @@ Then write one table per framework. Use the normalized framework heading as a le
 ```markdown
 ## owasp-top-10
 
-| Repository | Report | ID | Title | Status | Severity |
+| ID | Title | Status | Severity | Repository | Date Foud | Report | 
 |---|---|---|---|---|---|
-| owner/repo-a | [security-report-001.md](owner-repo-a/model/date/security-report-001.md) | A01 | Broken Access Control | FAIL | CRITICAL |
-| owner/repo-b | [security-report-001.md](owner-repo-b/model/date/security-report-001.md) | A01 | Broken Access Control | PARTIAL | MEDIUM |
+| A01 | Broken Access Control | FAIL | CRITICAL | owner/repo-a | YYYY-MMM-DD | [security-report-001.md](owner-repo-a/model/date/security-report-001.md) |
+| A01 | Broken Access Control | PARTIAL | MEDIUM |owner/repo-b | YYYY-MMM-DD | [security-report-001.md](owner-repo-b/model/date/security-report-001.md) | 
 ```
+
+Table should be sorted by ID. The Date Found Column is deduced from the folder structure of the security report file path, which is expected to be in the format `owner/repo/model/yyyy-mm-dd/security-report-*.md`. Extract the date segment and format it as `YYYY-MMM-DD` (e.g., `2024-SEP-30`) for the `Date Found` column.
 
 Use repository names as plain text in the `Repository` column. Use relative paths for Markdown links whenever possible.
 
