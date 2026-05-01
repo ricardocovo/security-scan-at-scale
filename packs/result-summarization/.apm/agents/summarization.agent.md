@@ -100,7 +100,9 @@ Sort the final table by:
 
 ## Output File
 
-The name of the outuput file should be "summarized-findings.md".
+Always write the final summary Markdown file to the root of the provided results folder.
+
+The summarization command runs with the results folder as its current working directory, so write the file as: `summarized-findings.md`
 
 ## Output Format
 
@@ -140,4 +142,4 @@ Before finalizing:
 
 If a report has malformed tables, do not fail the entire summary. Skip only the malformed table, record the skipped file/table in a short `Skipped` section, and continue with the remaining reports.
 
-If the user asks to write the summary to a file, create the parent directory if needed and write a Markdown file containing the summary and any skipped-file notes.
+Always write a Markdown file containing the summary and any skipped-file notes to `summarized-findings.md` in the results folder root. Create the parent directory if needed.

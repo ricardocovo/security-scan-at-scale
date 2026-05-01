@@ -37,10 +37,12 @@ securityScanCommands:
 # is the resultsDir above, so they can read/aggregate every scan's artifacts.
 # When set, summarizationModel is required (and vice versa).
 #summarizationModel: gpt-4.1
+#summarizationApmPack: ricardocovo/security-scan-at-scale/packs/result-summarization
 #summarizationCommands:
 #  - name: "Summarize Findings"
 #    prompt: |
-#      Use the agent at github\agents\summarization.agent.md to summarize results.
+#      Use the agent at .github\agents\summarization.agent.md to summarize results.
+#      Write the output file to summarized-findings.md in the current results folder.
 
 
 # Maximum time (in milliseconds) to wait for a single Copilot session before treating it as failed.

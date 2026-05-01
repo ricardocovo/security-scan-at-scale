@@ -158,10 +158,12 @@ securityScanCommands:
 # Optional: summarization commands run once globally after all repository scans
 # finish and artifacts are moved into resultsDir. They run with cwd=resultsDir.
 summarizationModel: gpt-4.1
-summarizationApmPack: ricardocovo/security-scan-at-scale/packs/repo-security-scan
+summarizationApmPack: ricardocovo/security-scan-at-scale/packs/result-summarization
 summarizationCommands:
   - name: "Aggregate Findings"
-    prompt: "Create a top-level SUMMARY.md from all scan artifacts."
+    prompt: |
+      Use the agent at .github/agents/summarization.agent.md to summarize results.
+      Write the output file to summarized-findings.md in the current results folder.
 
 sessionTimeoutMs: 600000  # 10 minutes per session
 ```
@@ -203,6 +205,7 @@ A summary footer shows total, completed (✅), failed (❌), in-flight (⏳), an
 |---|---|
 | `results/<owner>-<repo>/<model>/` | Contents of the scan's `.sss/` folder (whatever the configured commands wrote) |
 | `results/<owner>-<repo>/<model>/scan.log` | Per-scan log of pipeline events (clone, apm, command timings) |
+| `results/summarized-findings.md` | Aggregate findings summary written by the result summarization pack |
 
 ## Contributing
 
