@@ -103,11 +103,15 @@ npm start -- -c config.yml
 # CI / plain-log mode
 npm start -- --no-ui
 
+# Run only the summarization phase over existing results
+npm start -- -c config.yml --skip-security-scan
+
 # Override concurrency
 npm start -- --concurrency 4
 
 # Combine flags
 npm start -- -c config.yml --concurrency 4 --no-ui
+npm start -- -c config.yml --skip-security-scan --no-ui
 ```
 
 After `npm run build` the `security-scan` binary is also available:
@@ -118,7 +122,7 @@ After `npm run build` the `security-scan` binary is also available:
 security-scan -c config.yml
 ```
 
-When the run finishes, each scan's `.sss/` artifacts are collected into `results/<owner>-<repo>/<model>/`, alongside that scan's `scan.log`.
+When the run finishes, each scan's `.sss/` artifacts are collected into `results/<owner>-<repo>/<model>/`, alongside that scan's `scan.log`. Use `--skip-security-scan` to skip cloning and per-repository commands and run only `summarizationCommands` against the existing `resultsDir` contents.
 
 ## Configuration
 
@@ -140,14 +144,24 @@ repos:
 # Optional: APM pack to install into each cloned repo before scanning
 apmPack: ricardocovo/agent-primitives
 
-# One or more commands (each runs in a fresh Copilot session)
-commands:
+# One or more security scan commands run per (repo, model) pair.
+# Required unless you run with --skip-security-scan.
+# Each runs in a fresh Copilot session.
+securityScanCommands:
   - name: "Dependency Audit"
     prompt: "..."
   - name: "Secret Scan"
     prompt: "..."
   - name: "OWASP Top 10"
     prompt: "..."
+
+# Optional: summarization commands run once globally after all repository scans
+# finish and artifacts are moved into resultsDir. They run with cwd=resultsDir.
+summarizationModel: gpt-4.1
+summarizationApmPack: ricardocovo/security-scan-at-scale/packs/repo-security-scan
+summarizationCommands:
+  - name: "Aggregate Findings"
+    prompt: "Create a top-level SUMMARY.md from all scan artifacts."
 
 sessionTimeoutMs: 600000  # 10 minutes per session
 ```

@@ -92,9 +92,9 @@ export async function runScan(
     await log(`apm:done`);
     emit('apm:done', { scanId });
 
-    // Step 3: Run commands
-    for (let i = 0; i < config.commands.length; i++) {
-      const cmd = config.commands[i];
+    // Step 3: Run security scan commands
+    for (let i = 0; i < config.securityScanCommands.length; i++) {
+      const cmd = config.securityScanCommands[i];
       const cmdStartedAt = Date.now();
       emit('command:start', { scanId, index: i, name: cmd.name });
       await log(`command:start  index=${i}  name=${cmd.name}`);
@@ -129,6 +129,106 @@ export async function runScan(
     result.status = 'failed';
     result.error = String(err);
     await log(`scan:failed  error=${String(err)}`);
+  }
+
+  result.finishedAt = Date.now();
+  result.durationMs = result.finishedAt - startedAt;
+  return result;
+}
+
+export type SummarizationStatus = 'running' | 'done' | 'failed';
+
+export interface SummarizationResult {
+  status: SummarizationStatus;
+  model: string;
+  startedAt: number;
+  finishedAt: number;
+  durationMs: number;
+  commandResults: CommandResult[];
+  error?: string;
+}
+
+/**
+ * Run summarization commands once globally over the results folder, after all
+ * per-(repo, model) security scans have completed.
+ *
+ * - installs `config.summarizationApmPack` into `config.resultsDir`, if set
+ * - cwd is `config.resultsDir`
+ * - model is `config.summarizationModel`
+ * - commands run sequentially in fresh Copilot sessions
+ */
+export async function runSummarization(
+  config: Config,
+  emit: EmitFn,
+  token?: string
+): Promise<SummarizationResult> {
+  const commands = config.summarizationCommands ?? [];
+  const model = config.summarizationModel!;
+  const cwd = config.resultsDir;
+  const logPath = join(config.resultsDir, 'summarization.log');
+  const startedAt = Date.now();
+  const commandResults: CommandResult[] = [];
+
+  await mkdir(cwd, { recursive: true });
+  const log = await createScanLogger(logPath);
+  await log(`summarization:start  model=${model}  cwd=${cwd}  commands=${commands.length}`);
+
+  const result: SummarizationResult = {
+    status: 'running',
+    model,
+    startedAt,
+    finishedAt: 0,
+    durationMs: 0,
+    commandResults,
+  };
+
+  try {
+    emit('summarization:apm:start', { pack: config.summarizationApmPack });
+    await log(`summarization:apm:start  pack=${config.summarizationApmPack ?? '(none)'}`);
+    const apmEnv: Record<string, string> = token ? { GITHUB_TOKEN: token } : {};
+    await runApmInstall(cwd, config.summarizationApmPack, apmEnv);
+    await log(`summarization:apm:done`);
+    emit('summarization:apm:done', { pack: config.summarizationApmPack });
+
+    for (let i = 0; i < commands.length; i++) {
+      const cmd = commands[i];
+      const cmdStartedAt = Date.now();
+      emit('summarization:command:start', { index: i, name: cmd.name });
+      await log(`summarization:command:start  index=${i}  name=${cmd.name}`);
+
+      const cmdResult = await runCommand({
+        model,
+        cwd,
+        prompt: cmd.prompt,
+        name: cmd.name,
+        timeoutMs: config.sessionTimeoutMs,
+        token,
+      });
+
+      const elapsed = Date.now() - cmdStartedAt;
+      commandResults.push(cmdResult);
+      await log(
+        `summarization:command:done  index=${i}  name=${cmd.name}  status=${cmdResult.status}  elapsed=${elapsed}ms` +
+        (cmdResult.error ? `  error=${cmdResult.error}` : '')
+      );
+      emit('summarization:command:done', {
+        index: i,
+        name: cmd.name,
+        status: cmdResult.status,
+        elapsed,
+      });
+
+      if (cmdResult.status === 'failed') {
+        throw new Error(cmdResult.error ?? `Summarization command "${cmd.name}" failed`);
+      }
+    }
+
+    result.status = 'done';
+    await log(`summarization:done  duration=${Date.now() - startedAt}ms`);
+  } catch (err) {
+    result.status = 'failed';
+    result.error = String(err);
+    await log(`summarization:failed  error=${String(err)}`);
   }
 
   result.finishedAt = Date.now();

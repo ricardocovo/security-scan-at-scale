@@ -51,11 +51,92 @@ export const Dashboard: React.FC<DashboardProps> = ({
   );
   const [tick, setTick] = useState(0);
   const [runDone, setRunDone] = useState(false);
+  const [securityScanSkipped, setSecurityScanSkipped] = useState(false);
   const [overallStart] = useState(() => Date.now());
+
+  type SummarizationPhase = {
+    status: 'idle' | 'running' | 'done' | 'failed';
+    model?: string;
+    totalCommands?: number;
+    currentIndex?: number;
+    currentName?: string;
+    completed: { name: string; status: string; elapsed: number }[];
+    error?: string;
+  };
+  const [summarization, setSummarization] = useState<SummarizationPhase>({
+    status: 'idle',
+    completed: [],
+  });
+
+  // Summarization phase events
+  useEffect(() => {
+    const onStart = ({ model, commands }: { model: string; commands: number }) => {
+      setSummarization({
+        status: 'running',
+        model,
+        totalCommands: commands,
+        completed: [],
+      });
+    };
+    const onCmdStart = ({ index, name }: { index: number; name: string }) => {
+      setSummarization((s) => ({ ...s, currentIndex: index, currentName: name }));
+    };
+    const onApmStart = () => {
+      setSummarization((s) => ({ ...s, currentName: 'apm install' }));
+    };
+    const onApmDone = () => {
+      setSummarization((s) => ({ ...s, currentName: undefined }));
+    };
+    const onCmdDone = ({
+      name,
+      status,
+      elapsed,
+    }: {
+      name: string;
+      status: string;
+      elapsed: number;
+    }) => {
+      setSummarization((s) => ({
+        ...s,
+        completed: [...s.completed, { name, status, elapsed }],
+      }));
+    };
+    const onDone = () => {
+      setSummarization((s) => ({ ...s, status: 'done', currentName: undefined }));
+    };
+    const onFailed = ({ error }: { error?: string }) => {
+      setSummarization((s) => ({
+        ...s,
+        status: 'failed',
+        currentName: undefined,
+        error,
+      }));
+    };
+    events.on('summarization:start', onStart);
+    events.on('summarization:apm:start', onApmStart);
+    events.on('summarization:apm:done', onApmDone);
+    events.on('summarization:command:start', onCmdStart);
+    events.on('summarization:command:done', onCmdDone);
+    events.on('summarization:done', onDone);
+    events.on('summarization:failed', onFailed);
+    return () => {
+      events.off('summarization:start', onStart);
+      events.off('summarization:apm:start', onApmStart);
+      events.off('summarization:apm:done', onApmDone);
+      events.off('summarization:command:start', onCmdStart);
+      events.off('summarization:command:done', onCmdDone);
+      events.off('summarization:done', onDone);
+      events.off('summarization:failed', onFailed);
+    };
+  }, [events]);
 
   // Refresh rows on any orchestrator event
   useEffect(() => {
     const refresh = () => setRows(Array.from(getState().values()));
+    const onSkipped = () => {
+      setSecurityScanSkipped(true);
+      refresh();
+    };
     const eventNames = [
       'scan:queued',
       'scan:start',
@@ -69,8 +150,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
       'command:done',
     ];
     eventNames.forEach((e) => events.on(e, refresh));
+    events.on('security-scan:skipped', onSkipped);
     return () => {
       eventNames.forEach((e) => events.off(e, refresh));
+      events.off('security-scan:skipped', onSkipped);
     };
   }, [events, getState]);
 
@@ -142,6 +225,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <Text dimColor>{divider}</Text>
       </Box>
 
+      {securityScanSkipped && (
+        <Box>
+          <Text color="yellow">Security scan skipped; running summarization only.</Text>
+        </Box>
+      )}
+
       {/* Scan rows */}
       {stableRows.map((row) => {
         const isActive = row.status === 'running';
@@ -196,6 +285,41 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <Text bold>{formatElapsed(overallStart, runDone ? undefined : undefined)}</Text>
         </Text>
       </Box>
+
+      {/* Summarization phase */}
+      {summarization.status !== 'idle' && (
+        <Box marginTop={1} flexDirection="column">
+          <Box>
+            <Text bold color="cyan">Summarization</Text>
+            <Text>{'  '}</Text>
+            {summarization.status === 'running' && (
+              <Text color="yellow">
+                <Spinner type="dots" />
+                {' running'}
+                {summarization.model ? ` (${summarization.model})` : ''}
+              </Text>
+            )}
+            {summarization.status === 'done' && (
+              <Text color="green" bold>done</Text>
+            )}
+            {summarization.status === 'failed' && (
+              <Text color="red" bold>failed{summarization.error ? `: ${summarization.error}` : ''}</Text>
+            )}
+          </Box>
+          {summarization.completed.map((c, i) => (
+            <Box key={`sum-done-${i}`}>
+              <Text color={c.status === 'done' ? 'green' : 'red'}>
+                {`  ✓ ${c.name} — ${c.status} (${Math.round(c.elapsed / 1000)}s)`}
+              </Text>
+            </Box>
+          ))}
+          {summarization.status === 'running' && summarization.currentName && (
+            <Box>
+              <Text color="yellow">{`  → ${summarization.currentName}`}</Text>
+            </Box>
+          )}
+        </Box>
+      )}
 
       {/* Completion message */}
       {runDone && (
