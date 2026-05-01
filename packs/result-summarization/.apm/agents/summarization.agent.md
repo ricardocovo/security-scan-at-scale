@@ -11,46 +11,48 @@ You summarize security scan reports generated under your root folder tree.
 The expected input layout is similar to:
 
 ```text
-root/
 |-- owner-repo-a/
-|   `-- model-name/
-|       `-- yyyy-mm-dd/
-|           `-- security-report-001.md
+|   -- model-name/
+|       -- yyyy-mm-dd/
+|           `-- security-report-*.md
 |-- owner-repo-b/
-|   `-- model-name/
-|       `-- yyyy-mm-dd/
-|           `-- security-report-001.md
-`-- owner-repo-c/
-    `-- model-name/
-        `-- yyyy-mm-dd/
-            `-- security-report-001.md
+|   -- model-name/
+|       -- yyyy-mm-dd/
+|           -- security-report-*.md
+|-- owner-repo-c/
+    -- model-name/
+        -- yyyy-mm-dd/
+            -- security-report-*.md
 ```
 
 ## Objective
 
-Search the provided results folder for security report Markdown files, extract the `## Findings by Framework` section from each report, and produce an aggregate Markdown summary table.
+Search the provided results folder for security report Markdown files, extract the `Findings by Framework` section from each report, and produce a Markdown summary that keeps findings grouped under their original framework headings.
 
-The summary table must include these columns:
+The summary must include every non-`PASS` finding row from every parsed report. Do not abbreviate the output with ellipsis rows, "top findings" notes, or partial excerpts.
+
+Each framework section table must include these columns:
 
 | Column | Source |
 |---|---|
+| Repository | Repository metadata line or inferred repository name |
+| Report | Markdown link to the source report file |
 | ID | Source report table `ID` column |
 | Title | Source report table `Title` column |
 | Status | Source report table `Status` column |
 | Severity | Source report table `Severity` column |
-| Number of Occurrences | Count of matching finding rows across all parsed report files |
-| Number of Repos | Count of distinct repositories containing the finding |
-| Repos with Issues | Markdown links to the report files where the finding appears |
 
 
 ## File Discovery
 
-1. Search recursively under the results folder for Markdown files matching `security-report*.md`.
-2. If no files match, search for all `*.md` files and keep only files containing both:
+1. Discover files from the current working directory with filesystem commands, not workspace-scoped search tools. The results folder may be outside the VS Code workspace.
+2. Prefer `rg --files -g "security-report*.md"`; if `rg` is unavailable, use the platform shell recursively, such as `Get-ChildItem -Recurse -File -Filter "security-report*.md"` on PowerShell.
+3. Search recursively under the results folder for Markdown files matching `security-report*.md`.
+4. If no files match, search for all `*.md` files and keep only files containing both:
 	- `# Security Assessment Report`
-	- `## Findings by Framework`
-3. Respect optional model and date filters by path segment.
-4. If no candidate files remain, report that no matching security reports were found and stop.
+	- `Findings by Framework`
+5. Respect optional model and date filters by path segment.
+6. If no candidate files remain, report that no matching security reports were found and stop.
 
 ## Parsing Rules
 
@@ -64,38 +66,43 @@ For each candidate report:
 
 	If that line is missing, infer the repository from the results path segment immediately below the results root, converting the first hyphen between owner and repo only when the repository metadata is unavailable.
 
-2. Extract only the section that starts at `## Findings by Framework` and ends before the next `## ` heading, usually `## Detailed Remediation Guidance`.
+2. Extract only the section whose level-2 heading contains `Findings by Framework`, allowing numbered headings such as `## 3. Findings by Framework`. The section ends before the next level-2 heading, usually `## Detailed Remediation Guidance`.
 3. Within that section, parse every Markdown table under framework headings such as:
 	- `### OWASP Top 10 (2025)`
 	- `### OWASP Infrastructure Security Top 10 (2024)`
 	- `### OWASP CI/CD Security Top 10 (2025)`
 	- `### Secure-by-Design (UK Gov SbD + ASD/ACSC)`
-4. Parse tables by column names, not by fixed positions. At minimum, extract `ID`, `Title`, `Status`, and `Severity`.
-5. Ignore separator rows such as `|---|---|`.
-6. Trim Markdown formatting and excess whitespace from cell values.
-7. Treat `PASS`, `NOT_ASSESSED`, and blank or dash-only severity markers as non-issues unless the user explicitly asks to include them.
+4. Capture the nearest preceding `###` framework heading for each table and keep each finding under that framework in the final output. Preserve framework distinctions even when the same `ID` appears in multiple frameworks or repositories.
+5. Parse tables by column names, not by fixed positions. At minimum, extract `ID`, `Title`, `Status`, and `Severity`. If source tables contain additional useful columns such as `Verdict`, `Location`, or `Justification`, they may be omitted from the final summary unless explicitly requested.
+6. Ignore separator rows such as `|---|---|`.
+7. Trim Markdown formatting and excess whitespace from cell values.
+8. Exclude rows only when `Status` is exactly `PASS` after trimming and case normalization. Include every other row, including `FAIL`, `PARTIAL`, `NOT_ASSESSED`, blank status, and rows with blank or dash-only severity.
 
-## Aggregation Rules
+## Framework Heading Normalization
 
-Group findings by this key:
+Normalize framework headings before writing output sections:
 
-```text
-ID + Title + Status + Severity
-```
+1. Remove leading section numbers such as `3.1`, `3.2`, or `3.6`.
+2. Prefer the canonical framework token when present in the heading, such as `owasp-top-10`, `owasp-llm`, `owasp-agentic`, `owasp-infrastructure`, `owasp-cicd`, `owasp-mcp`, `owasp-docker`, and `secure-by-design`.
+3. When no canonical token is present, use the cleaned heading text in lowercase kebab case.
+4. Write output sections with the normalized framework as a level-2 heading, for example `## owasp-llm`.
 
-For each group:
+## Framework Preservation and Row Inclusion Rules
 
-- **Number of Occurrences:** Increment once for every matching row in every parsed report.
-- **Number of Repos:** Count distinct repository names for that group.
-- **Repos / Files with Issues:** Include one Markdown link per distinct repository/report pair where the finding appears.
+Do not produce one global aggregate table. Do not merge rows across frameworks.
 
-If the same finding appears more than once in one report, count every occurrence, but list that report link only once for that repository in `Repos / Files with Issues`.
+For each parsed non-`PASS` source row:
 
-Sort the final table by:
+- Add exactly one output row under the matching framework section.
+- Preserve the source row's `ID`, `Title`, `Status`, and `Severity` values after trimming formatting and excess whitespace.
+- Include the repository name and a Markdown link to the source report.
+- If the same finding appears in multiple reports, repositories, or framework tables, include each occurrence as its own output row.
+
+Within each framework section, sort rows by:
 
 1. Severity order: `CRITICAL`, `HIGH`, `MEDIUM`, `LOW`, then anything else.
 2. Status order: `FAIL`, `PARTIAL`, then anything else.
-3. `Number of Occurrences` descending.
+3. Repository name ascending.
 4. `ID` ascending.
 
 ## Output File
@@ -109,24 +116,25 @@ The summarization command runs with the results folder as its current working di
 Start with a short summary paragraph:
 
 ```markdown
-Parsed {report_count} report files across {repo_count} repositories. Found {finding_count} issue rows after filters.
+Parsed {report_count} report files across {repo_count} repositories. Found {finding_count} non-PASS finding rows after filters.
 ```
 
-Then write this table:
+Then write one table per framework. Use the normalized framework heading as a level-2 heading and keep all source rows for that framework in the table:
 
 ```markdown
-| ID | Title | Status | Severity | Number of Occurrences | Number of Repos | Repos / Files with Issues |
-|---|---|---|---|---:|---:|---|
-| A02 | Security Misconfiguration | FAIL | HIGH | 3 | 3 | [owner/repo-a](relative/path/security-report-001.md), [owner/repo-b](relative/path/security-report-001.md) |
+## owasp-top-10
+
+| Repository | Report | ID | Title | Status | Severity |
+|---|---|---|---|---|---|
+| owner/repo-a | [security-report-001.md](owner-repo-a/model/date/security-report-001.md) | A01 | Broken Access Control | FAIL | CRITICAL |
+| owner/repo-b | [security-report-001.md](owner-repo-b/model/date/security-report-001.md) | A01 | Broken Access Control | PARTIAL | MEDIUM |
 ```
 
-Use repository names as link text when known. Use relative paths for Markdown links whenever possible.
+Use repository names as plain text in the `Repository` column. Use relative paths for Markdown links whenever possible.
 
-If multiple report files exist for the same repository, include each distinct report link, for example:
+If multiple report files exist for the same repository, include each source row separately with its corresponding report link.
 
-```markdown
-[owner/repo](results/owner-repo/model/date/security-report-001.md), [owner/repo](results/owner-repo/model/date/security-report-002.md)
-```
+Do not write `...`, `top findings only`, or any other abbreviated placeholder in the findings tables.
 
 ## Quality Checks
 
@@ -134,9 +142,11 @@ Before finalizing:
 
 - Confirm how many candidate files were discovered.
 - Confirm how many files were successfully parsed.
+- Confirm how many non-`PASS` rows were included per framework and overall.
 - Confirm skipped files and the reason each was skipped.
 - Confirm that table columns are aligned with the required output columns.
 - Confirm the summary does not include `PASS` rows unless requested.
+- Confirm no non-`PASS` source rows were omitted, merged, or collapsed into combined status/severity values.
 
 ## Failure Handling
 
