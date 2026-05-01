@@ -36,14 +36,11 @@ securityScanCommands:
 # complete. They execute in a fresh Copilot SDK session whose working directory
 # is the resultsDir above, so they can read/aggregate every scan's artifacts.
 # When set, summarizationModel is required (and vice versa).
-# summarizationModel: gpt-5.4
-# summarizationApmPack: ricardocovo/security-scan-at-scale/packs/repo-security-scan
-# summarizationCommands:
-#   - name: "Aggregate Findings"
-#     prompt: |
-#       Read every .sss/ artifact under each {owner-repo}/{model}/ folder and
-#       produce a top-level SUMMARY.md aggregating findings across all repos
-#       and models.
+#summarizationModel: gpt-4.1
+#summarizationCommands:
+#  - name: "Summarize Findings"
+#    prompt: |
+#      Use the agent at github\agents\summarization.agent.md to summarize results.
 
 
 # Maximum time (in milliseconds) to wait for a single Copilot session before treating it as failed.
