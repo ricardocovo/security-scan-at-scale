@@ -203,6 +203,24 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   // Stable row order: preserve insertion order (queue order)
   const stableRows = rows;
+  const phaseLabel = runDone
+    ? 'complete'
+    : summarization.status === 'running'
+      ? `summarization${summarization.model ? ` (${summarization.model})` : ''}`
+      : summarization.status === 'done'
+        ? 'summarization complete'
+        : summarization.status === 'failed'
+          ? 'summarization failed'
+          : securityScanSkipped
+            ? 'summarization pending'
+            : 'security scans';
+  const phaseColor = summarization.status === 'failed'
+    ? 'red'
+    : summarization.status === 'running' || securityScanSkipped
+      ? 'yellow'
+      : runDone || summarization.status === 'done'
+        ? 'green'
+        : 'cyan';
 
   return (
     <Box flexDirection="column">
@@ -212,6 +230,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <Text bold color="cyan">
           Security Scan at Scale
         </Text>
+      </Box>
+      <Box marginBottom={1}>
+        <Text dimColor>Phase: </Text>
+        <Text bold color={phaseColor}>{phaseLabel}</Text>
+        {summarization.status === 'running' && summarization.currentName && (
+          <Text color="yellow">{`  -> ${summarization.currentName}`}</Text>
+        )}
       </Box>
 
       {/* Table header */}
