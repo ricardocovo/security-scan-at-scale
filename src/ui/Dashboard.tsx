@@ -40,6 +40,15 @@ function shortRepo(url: string): string {
   return url.replace(/https?:\/\/github\.com\//i, '');
 }
 
+type SummarizationRow = {
+  key: string;
+  step: string;
+  status: 'running' | 'done' | 'failed';
+  startedAt: number | null;
+  finishedAt: number | null;
+  elapsed?: number;
+};
+
 export const Dashboard: React.FC<DashboardProps> = ({
   events,
   getState,
@@ -60,12 +69,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
     totalCommands?: number;
     currentIndex?: number;
     currentName?: string;
-    completed: { name: string; status: string; elapsed: number }[];
+    rows: SummarizationRow[];
     error?: string;
   };
   const [summarization, setSummarization] = useState<SummarizationPhase>({
     status: 'idle',
-    completed: [],
+    rows: [],
   });
 
   // Summarization phase events
@@ -75,30 +84,63 @@ export const Dashboard: React.FC<DashboardProps> = ({
         status: 'running',
         model,
         totalCommands: commands,
-        completed: [],
+        rows: [],
       });
     };
     const onCmdStart = ({ index, name }: { index: number; name: string }) => {
-      setSummarization((s) => ({ ...s, currentIndex: index, currentName: name }));
+      setSummarization((s) => ({
+        ...s,
+        currentIndex: index,
+        currentName: name,
+        rows: upsertSummarizationRow(s.rows, {
+          key: `cmd-${index}`,
+          step: name,
+          status: 'running',
+          startedAt: Date.now(),
+          finishedAt: null,
+        }),
+      }));
     };
     const onApmStart = () => {
-      setSummarization((s) => ({ ...s, currentName: 'apm install' }));
+      setSummarization((s) => ({
+        ...s,
+        currentName: 'apm install',
+        rows: upsertSummarizationRow(s.rows, {
+          key: 'apm',
+          step: 'apm install',
+          status: 'running',
+          startedAt: Date.now(),
+          finishedAt: null,
+        }),
+      }));
     };
     const onApmDone = () => {
-      setSummarization((s) => ({ ...s, currentName: undefined }));
+      setSummarization((s) => ({
+        ...s,
+        currentName: undefined,
+        rows: finishSummarizationRow(s.rows, 'apm', 'done'),
+      }));
     };
     const onCmdDone = ({
+      index,
       name,
       status,
       elapsed,
     }: {
+      index: number;
       name: string;
       status: string;
       elapsed: number;
     }) => {
       setSummarization((s) => ({
         ...s,
-        completed: [...s.completed, { name, status, elapsed }],
+        rows: finishSummarizationRow(
+          s.rows,
+          `cmd-${index}`,
+          status === 'failed' ? 'failed' : 'done',
+          elapsed,
+          name
+        ),
       }));
     };
     const onDone = () => {
@@ -200,6 +242,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const STEP_W = 16;
   const REPO_W = Math.max(20, tWidth - SPINNER_W - ELAPSED_W - MODEL_W - STEP_W - 4);
   const divider = '-'.repeat(tWidth);
+  const summaryStatusWidth = 12;
+  const summaryStepWidth = Math.max(20, tWidth - SPINNER_W - MODEL_W - summaryStatusWidth - ELAPSED_W - 4);
 
   // Stable row order: preserve insertion order (queue order)
   const stableRows = rows;
@@ -228,7 +272,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* Header */}
       <Box marginBottom={1}>
         <Text bold color="cyan">
-          Security Scan at Scale
+          Security Scans
         </Text>
       </Box>
       <Box marginBottom={1}>
@@ -284,7 +328,63 @@ export const Dashboard: React.FC<DashboardProps> = ({
         );
       })}
 
-      {/* Footer */}
+      {/* Summarization table */}
+      {summarization.status !== 'idle' && (
+        <Box marginTop={1} flexDirection="column">
+          <Box>
+            <Text bold color="cyan">Summarization</Text>
+            <Text>{'  '}</Text>
+            {summarization.status === 'running' && (
+              <Text color="yellow">
+                <Spinner type="dots" />
+                {' running'}
+                {summarization.model ? ` (${summarization.model})` : ''}
+              </Text>
+            )}
+            {summarization.status === 'done' && (
+              <Text color="green" bold>done</Text>
+            )}
+            {summarization.status === 'failed' && (
+              <Text color="red" bold>failed{summarization.error ? `: ${summarization.error}` : ''}</Text>
+            )}
+          </Box>
+          <Box>
+            <Text bold>{padRight('Step', SPINNER_W + summaryStepWidth)}</Text>
+            <Text bold>{padRight('Model', MODEL_W)}</Text>
+            <Text bold>{padRight('Status', summaryStatusWidth)}</Text>
+            <Text bold>{'Elapsed'}</Text>
+          </Box>
+          <Box>
+            <Text dimColor>{divider}</Text>
+          </Box>
+          {summarization.rows.map((row) => {
+            const isActive = row.status === 'running';
+            const isDone = row.status === 'done';
+            const isFailed = row.status === 'failed';
+            const color = isDone ? 'green' : isFailed ? 'red' : 'yellow';
+
+            return (
+              <Box key={row.key}>
+                <Box width={SPINNER_W}>
+                  {isActive ? (
+                    <Text color="yellow">
+                      <Spinner type="dots" />
+                    </Text>
+                  ) : (
+                    <Text> </Text>
+                  )}
+                </Box>
+                <Text color={color}>{padRight(row.step, summaryStepWidth)}</Text>
+                <Text color={color}>{padRight(summarization.model ?? '—', MODEL_W)}</Text>
+                <Text color={color}>{padRight(row.status, summaryStatusWidth)}</Text>
+                <Text color={color}>{formatSummarizationElapsed(row)}</Text>
+              </Box>
+            );
+          })}
+        </Box>
+      )}
+
+      {/* Totals */}
       <Box marginTop={1}>
         <Text dimColor>{divider}</Text>
       </Box>
@@ -311,41 +411,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
         </Text>
       </Box>
 
-      {/* Summarization phase */}
-      {summarization.status !== 'idle' && (
-        <Box marginTop={1} flexDirection="column">
-          <Box>
-            <Text bold color="cyan">Summarization</Text>
-            <Text>{'  '}</Text>
-            {summarization.status === 'running' && (
-              <Text color="yellow">
-                <Spinner type="dots" />
-                {' running'}
-                {summarization.model ? ` (${summarization.model})` : ''}
-              </Text>
-            )}
-            {summarization.status === 'done' && (
-              <Text color="green" bold>done</Text>
-            )}
-            {summarization.status === 'failed' && (
-              <Text color="red" bold>failed{summarization.error ? `: ${summarization.error}` : ''}</Text>
-            )}
-          </Box>
-          {summarization.completed.map((c, i) => (
-            <Box key={`sum-done-${i}`}>
-              <Text color={c.status === 'done' ? 'green' : 'red'}>
-                {`  ✓ ${c.name} — ${c.status} (${Math.round(c.elapsed / 1000)}s)`}
-              </Text>
-            </Box>
-          ))}
-          {summarization.status === 'running' && summarization.currentName && (
-            <Box>
-              <Text color="yellow">{`  → ${summarization.currentName}`}</Text>
-            </Box>
-          )}
-        </Box>
-      )}
-
       {/* Completion message */}
       {runDone && (
         <Box marginTop={1} flexDirection="column">
@@ -364,5 +429,39 @@ export const Dashboard: React.FC<DashboardProps> = ({
 function padRight(s: string, len: number): string {
   if (s.length >= len) return s.slice(0, len - 1) + ' ';
   return s + ' '.repeat(len - s.length);
+}
+
+function upsertSummarizationRow(rows: SummarizationRow[], next: SummarizationRow): SummarizationRow[] {
+  const index = rows.findIndex((row) => row.key === next.key);
+  if (index === -1) return [...rows, next];
+
+  return rows.map((row, rowIndex) => rowIndex === index ? { ...row, ...next } : row);
+}
+
+function finishSummarizationRow(
+  rows: SummarizationRow[],
+  key: string,
+  status: 'done' | 'failed',
+  elapsed?: number,
+  step?: string
+): SummarizationRow[] {
+  const finishedAt = Date.now();
+  return rows.map((row) => row.key === key
+    ? {
+        ...row,
+        step: step ?? row.step,
+        status,
+        finishedAt,
+        elapsed: elapsed ?? (row.startedAt === null ? undefined : finishedAt - row.startedAt),
+      }
+    : row);
+}
+
+function formatSummarizationElapsed(row: SummarizationRow): string {
+  if (row.elapsed !== undefined) {
+    const finishedAt = (row.startedAt ?? 0) + row.elapsed;
+    return formatElapsed(row.startedAt, finishedAt);
+  }
+  return formatElapsed(row.startedAt, row.finishedAt);
 }
 
