@@ -1,0 +1,6 @@
+name: repo-security-scan-light
+version: 1.0.0
+description: Primitives to help sumarizing security scan results..
+
+dependencies:
+  apm: []
