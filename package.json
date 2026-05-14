@@ -1,6 +1,6 @@
 {
   "name": "security-scan-at-scale",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Orchestrates security scans across many GitHub repositories and LLM models in parallel.",
   "type": "module",
   "bin": {
